@@ -101,6 +101,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   String _selectedDestination = '60911'; // Default: Alacant Terminal
   String _selectedDay = 'today'; // 'today' or 'tomorrow'
   late Future<List<TrainSchedule>> _futureSchedule;
+  bool _showPastTrains = false;
 
   @override
   void initState() {
@@ -150,42 +151,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         elevation: 0,
         centerTitle: true,
         title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                stationIcons[_selectedOrigin] ?? Icons.location_on,
-                color: Color(0xFF5B86E5),
-                size: 22,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                stations[_selectedOrigin] ?? 'Origen',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text(' → '),
-              Icon(
-                stationIcons[_selectedDestination] ?? Icons.flag_circle,
-                color: Color(0xFF283E51),
-                size: 22,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                stations[_selectedDestination] ?? 'Destino',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
+            color: Colors.white.withOpacity(0.85),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 8,
+                offset: Offset(0, 2),
               ),
             ],
+          ),
+          child: const Text(
+            'Cercanías Alicante Murcia',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: Colors.black87,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
       ),
@@ -241,7 +226,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Switch(
+                              value: _showPastTrains,
+                              onChanged: (value) {
+                                setState(() {
+                                  _showPastTrains = value;
+                                });
+                              },
+                            ),
+                            const Text('Show past trains'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.location_on, color: Color(0xFF5B86E5)),
@@ -284,7 +283,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -307,7 +306,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.flag_circle, color: Color(0xFF283E51)),
@@ -350,6 +349,22 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Switch(
+                              value: _showPastTrains,
+                              onChanged: (value) {
+                                setState(() {
+                                  _showPastTrains = value;
+                                });
+                              },
+                            ),
+                            const Text('Show past trains'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
                       ],
                     ),
                   ),
@@ -373,10 +388,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       separatorBuilder: (context, i) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final t = trains[i];
+                        final now = DateTime.now();
                         bool isPast = false;
                         if (_selectedDay == 'today') {
-                          final now = DateTime.now();
-                          final todayStr = DateFormat('yyyyMMdd').format(now);
                           final horaSalida = t.horaSalida;
                           // horaSalida is HH:mm, parse as today
                           final parts = horaSalida.split(':');
@@ -388,6 +402,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               isPast = true;
                             }
                           }
+                        }
+                        if (isPast && !_showPastTrains) {
+                          return const SizedBox.shrink();
                         }
                         return Opacity(
                           opacity: isPast ? 0.4 : 1.0,
