@@ -103,6 +103,92 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   late Future<List<TrainSchedule>> _futureSchedule;
   bool _showPastTrains = false;
 
+  // Helper for modal bottom sheet station picker
+  Future<void> _pickStation({
+    required bool isOrigin,
+    required BuildContext context,
+  }) async {
+    final exclude = isOrigin ? _selectedDestination : _selectedOrigin;
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        String query = '';
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final filtered = stations.entries
+                .where((e) => e.key != exclude && (query.isEmpty || e.value.toLowerCase().contains(query.toLowerCase())))
+                .toList();
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: TextField(
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Search station...',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (val) => setSheetState(() => query = val),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: filtered.length,
+                      separatorBuilder: (c, i) => const Divider(height: 1),
+                      itemBuilder: (c, i) {
+                        final entry = filtered[i];
+                        return ListTile(
+                          leading: Icon(
+                            stationIcons[entry.key] ?? Icons.train,
+                            color: isOrigin ? Color(0xFF5B86E5) : Color(0xFF283E51),
+                          ),
+                          title: Text(entry.value),
+                          onTap: () => Navigator.pop(context, entry.key),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (selected != null) {
+      setState(() {
+        if (isOrigin) {
+          _selectedOrigin = selected;
+        } else {
+          _selectedDestination = selected;
+        }
+        _futureSchedule = fetchSchedule();
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -246,39 +332,33 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             const Icon(Icons.location_on, color: Color(0xFF5B86E5)),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: _selectedOrigin,
-                                decoration: const InputDecoration(labelText: 'Origen'),
-                                borderRadius: BorderRadius.circular(12),
-                                items: stations.entries
-                                    .where((entry) => entry.key != _selectedDestination)
-                                    .map((entry) {
-                                  return DropdownMenuItem<String>(
-                                    value: entry.key,
+                              child: GestureDetector(
+                                onTap: () => _pickStation(isOrigin: true, context: context),
+                                child: Card(
+                                  color: Colors.white.withOpacity(0.95),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                                     child: Row(
                                       children: [
                                         Icon(
-                                          stationIcons[entry.key] ?? Icons.train,
+                                          stationIcons[_selectedOrigin] ?? Icons.location_on,
                                           color: Color(0xFF5B86E5),
-                                          size: 20,
                                         ),
-                                        const SizedBox(width: 6),
-                                        Text(entry.value),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            stations[_selectedOrigin] ?? 'Select origin',
+                                            style: theme.textTheme.bodyLarge,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const Icon(Icons.expand_more, color: Colors.grey),
                                       ],
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  if (value != null && value != _selectedOrigin) {
-                                    setState(() {
-                                      _selectedOrigin = value;
-                                      if (_selectedDestination == value) {
-                                        _selectedDestination = stations.keys.firstWhere((k) => k != value);
-                                      }
-                                      _futureSchedule = fetchSchedule();
-                                    });
-                                  }
-                                },
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -312,56 +392,35 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             const Icon(Icons.flag_circle, color: Color(0xFF283E51)),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: _selectedDestination,
-                                decoration: const InputDecoration(labelText: 'Destino'),
-                                borderRadius: BorderRadius.circular(12),
-                                items: stations.entries
-                                    .where((entry) => entry.key != _selectedOrigin)
-                                    .map((entry) {
-                                  return DropdownMenuItem<String>(
-                                    value: entry.key,
+                              child: GestureDetector(
+                                onTap: () => _pickStation(isOrigin: false, context: context),
+                                child: Card(
+                                  color: Colors.white.withOpacity(0.95),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                                     child: Row(
                                       children: [
                                         Icon(
-                                          stationIcons[entry.key] ?? Icons.train,
+                                          stationIcons[_selectedDestination] ?? Icons.flag_circle,
                                           color: Color(0xFF283E51),
-                                          size: 20,
                                         ),
-                                        const SizedBox(width: 6),
-                                        Text(entry.value),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            stations[_selectedDestination] ?? 'Select destination',
+                                            style: theme.textTheme.bodyLarge,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const Icon(Icons.expand_more, color: Colors.grey),
                                       ],
                                     ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  if (value != null && value != _selectedDestination) {
-                                    setState(() {
-                                      _selectedDestination = value;
-                                      if (_selectedOrigin == value) {
-                                        _selectedOrigin = stations.keys.firstWhere((k) => k != value);
-                                      }
-                                      _futureSchedule = fetchSchedule();
-                                    });
-                                  }
-                                },
+                                  ),
+                                ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Switch(
-                              value: _showPastTrains,
-                              onChanged: (value) {
-                                setState(() {
-                                  _showPastTrains = value;
-                                });
-                              },
-                            ),
-                            const Text('Show past trains'),
                           ],
                         ),
                         const SizedBox(height: 4),
