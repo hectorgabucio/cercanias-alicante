@@ -15,7 +15,7 @@ class CercaniasScheduleApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cercanías Schedule',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
       home: const ScheduleScreen(),
@@ -134,7 +134,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFDEB71), Color(0xFFF8D800), Color(0xFFF1C40F)],
+            colors: [Color(0xFF283E51), Color(0xFF485563), Color(0xFF5B86E5)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -186,7 +186,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            const Icon(Icons.train, color: Colors.redAccent),
+                            const Icon(Icons.location_on, color: Color(0xFF5B86E5)),
                             const SizedBox(width: 8),
                             Expanded(
                               child: DropdownButtonFormField<String>(
@@ -225,7 +225,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: FloatingActionButton(
                                 heroTag: 'swap',
                                 mini: true,
-                                backgroundColor: Colors.redAccent,
+                                backgroundColor: Color(0xFF485563),
                                 onPressed: () {
                                   setState(() {
                                     final temp = _selectedOrigin;
@@ -242,7 +242,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.flag, color: Colors.green),
+                            const Icon(Icons.flag_circle, color: Color(0xFF283E51)),
                             const SizedBox(width: 8),
                             Expanded(
                               child: DropdownButtonFormField<String>(
@@ -319,7 +319,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             color: isPast ? Colors.grey[100] : null,
                             child: ListTile(
                               leading: CircleAvatar(
-                                backgroundColor: Colors.redAccent,
+                                backgroundColor: Colors.blueAccent,
                                 child: Text(
                                   t.linea,
                                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
