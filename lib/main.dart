@@ -13,7 +13,7 @@ class CercaniasScheduleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cercanías Schedule',
+      title: 'Cercanías Alicante Murcia',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
@@ -31,6 +31,43 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
+  // Translation map
+  static const translations = {
+    'es': {
+      'appTitle': 'Cercanías Alicante Murcia',
+      'origin': 'Origen',
+      'destination': 'Destino',
+      'selectOrigin': 'Selecciona origen',
+      'selectDestination': 'Selecciona destino',
+      'swapTooltip': 'Intercambiar origen y destino',
+      'today': 'Hoy',
+      'tomorrow': 'Mañana',
+      'showPast': 'Mostrar trenes pasados',
+      'searchStation': 'Buscar estación...',
+      'past': 'Pasado',
+      'duration': 'Duración',
+      'train': 'Tren',
+    },
+    'en': {
+      'appTitle': 'Cercanías Alicante Murcia',
+      'origin': 'Origin',
+      'destination': 'Destination',
+      'selectOrigin': 'Select origin',
+      'selectDestination': 'Select destination',
+      'swapTooltip': 'Swap origin and destination',
+      'today': 'Today',
+      'tomorrow': 'Tomorrow',
+      'showPast': 'Show past trains',
+      'searchStation': 'Search station...',
+      'past': 'Past',
+      'duration': 'Duration',
+      'train': 'Train',
+    }
+  };
+
+  String lang = 'es'; // Default to Spanish
+  String t(String key) => translations[lang]![key] ?? key;
+
   // Add station codes and names
   static const Map<String, String> stations = {
     "07004": "Aguilas",
@@ -97,18 +134,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   };
 
   // Add state for selected origin and destination
-  String _selectedOrigin = '60913'; // Default: Sant Vicent Centre
-  String _selectedDestination = '60911'; // Default: Alacant Terminal
-  String _selectedDay = 'today'; // 'today' or 'tomorrow'
-  late Future<List<TrainSchedule>> _futureSchedule;
-  bool _showPastTrains = false;
+  String selectedOrigin = '60913'; // Default: Sant Vicent Centre
+  String selectedDestination = '60911'; // Default: Alacant Terminal
+  String selectedDay = 'today'; // 'today' or 'tomorrow'
+  late Future<List<TrainSchedule>> futureSchedule;
+  bool showPastTrains = false;
 
   // Helper for modal bottom sheet station picker
   Future<void> _pickStation({
     required bool isOrigin,
     required BuildContext context,
   }) async {
-    final exclude = isOrigin ? _selectedDestination : _selectedOrigin;
+    final exclude = isOrigin ? selectedDestination : selectedOrigin;
     final selected = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -142,10 +179,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: TextField(
                       autofocus: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Search station...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                        prefixIcon: Icon(Icons.search),
+                      decoration: InputDecoration(
+                        hintText: t('searchStation'),
+                        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                        prefixIcon: const Icon(Icons.search),
                       ),
                       onChanged: (val) => setSheetState(() => query = val),
                     ),
@@ -180,11 +217,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (selected != null) {
       setState(() {
         if (isOrigin) {
-          _selectedOrigin = selected;
+          selectedOrigin = selected;
         } else {
-          _selectedDestination = selected;
+          selectedDestination = selected;
         }
-        _futureSchedule = fetchSchedule();
+        futureSchedule = fetchSchedule();
       });
     }
   }
@@ -192,19 +229,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _futureSchedule = fetchSchedule();
+    futureSchedule = fetchSchedule();
   }
 
   // Update fetchSchedule to use selected origin and destination
   Future<List<TrainSchedule>> fetchSchedule() async {
     final now = DateTime.now();
-    final date = _selectedDay == 'today' ? now : now.add(const Duration(days: 1));
+    final date = selectedDay == 'today' ? now : now.add(const Duration(days: 1));
     final formattedDate = DateFormat('yyyyMMdd').format(date);
     final url = Uri.parse('https://horarios.renfe.com/cer/HorariosServlet');
     final body = jsonEncode({
       "nucleo": "41",
-      "origen": _selectedOrigin,
-      "destino": _selectedDestination,
+      "origen": selectedOrigin,
+      "destino": selectedDestination,
       "fchaViaje": formattedDate,
       "validaReglaNegocio": true,
       "tiempoReal": false,
@@ -249,9 +286,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ],
           ),
-          child: const Text(
-            'Cercanías Alicante Murcia',
-            style: TextStyle(
+          child: Text(
+            t('appTitle'),
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: Colors.black87,
@@ -286,26 +323,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ChoiceChip(
-                              label: const Text('Today'),
-                              selected: _selectedDay == 'today',
+                              label: Text(t('today')),
+                              selected: selectedDay == 'today',
                               onSelected: (selected) {
-                                if (selected && _selectedDay != 'today') {
+                                if (selected && selectedDay != 'today') {
                                   setState(() {
-                                    _selectedDay = 'today';
-                                    _futureSchedule = fetchSchedule();
+                                    selectedDay = 'today';
+                                    futureSchedule = fetchSchedule();
                                   });
                                 }
                               },
                             ),
                             const SizedBox(width: 8),
                             ChoiceChip(
-                              label: const Text('Tomorrow'),
-                              selected: _selectedDay == 'tomorrow',
+                              label: Text(t('tomorrow')),
+                              selected: selectedDay == 'tomorrow',
                               onSelected: (selected) {
-                                if (selected && _selectedDay != 'tomorrow') {
+                                if (selected && selectedDay != 'tomorrow') {
                                   setState(() {
-                                    _selectedDay = 'tomorrow';
-                                    _futureSchedule = fetchSchedule();
+                                    selectedDay = 'tomorrow';
+                                    futureSchedule = fetchSchedule();
                                   });
                                 }
                               },
@@ -316,14 +353,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Switch(
-                              value: _showPastTrains,
+                              value: showPastTrains,
                               onChanged: (value) {
                                 setState(() {
-                                  _showPastTrains = value;
+                                  showPastTrains = value;
                                 });
                               },
                             ),
-                            const Text('Show past trains'),
+                            Text(t('showPast')),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -343,13 +380,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          stationIcons[_selectedOrigin] ?? Icons.location_on,
+                                          stationIcons[selectedOrigin] ?? Icons.location_on,
                                           color: Color(0xFF5B86E5),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            stations[_selectedOrigin] ?? 'Select origin',
+                                            stations[selectedOrigin] ?? t('selectOrigin'),
                                             style: theme.textTheme.bodyLarge,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -368,17 +405,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Tooltip(
-                              message: 'Swap origin and destination',
+                              message: t('swapTooltip'),
                               child: FloatingActionButton(
                                 heroTag: 'swap',
                                 mini: true,
                                 backgroundColor: Color(0xFF485563),
                                 onPressed: () {
                                   setState(() {
-                                    final temp = _selectedOrigin;
-                                    _selectedOrigin = _selectedDestination;
-                                    _selectedDestination = temp;
-                                    _futureSchedule = fetchSchedule();
+                                    final temp = selectedOrigin;
+                                    selectedOrigin = selectedDestination;
+                                    selectedDestination = temp;
+                                    futureSchedule = fetchSchedule();
                                   });
                                 },
                                 child: const Icon(Icons.swap_horiz, color: Colors.white),
@@ -403,13 +440,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          stationIcons[_selectedDestination] ?? Icons.flag_circle,
+                                          stationIcons[selectedDestination] ?? Icons.flag_circle,
                                           color: Color(0xFF283E51),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            stations[_selectedDestination] ?? 'Select destination',
+                                            stations[selectedDestination] ?? t('selectDestination'),
                                             style: theme.textTheme.bodyLarge,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -431,7 +468,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
               Expanded(
                 child: FutureBuilder<List<TrainSchedule>>(
-                  future: _futureSchedule,
+                  future: futureSchedule,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -446,13 +483,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       itemCount: trains.length,
                       separatorBuilder: (context, i) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
-                        final t = trains[i];
+                        final train = trains[i];
                         final now = DateTime.now();
                         bool isPast = false;
-                        if (_selectedDay == 'today') {
-                          final horaSalida = t.horaSalida;
-                          // horaSalida is HH:mm, parse as today
-                          final parts = horaSalida.split(':');
+                        if (selectedDay == 'today') {
+                          final departureTime = train.departureTime;
+                          final parts = departureTime.split(':');
                           if (parts.length == 2) {
                             final h = int.tryParse(parts[0]) ?? 0;
                             final m = int.tryParse(parts[1]) ?? 0;
@@ -462,7 +498,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             }
                           }
                         }
-                        if (isPast && !_showPastTrains) {
+                        if (isPast && !showPastTrains) {
                           return const SizedBox.shrink();
                         }
                         return Opacity(
@@ -475,7 +511,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               leading: CircleAvatar(
                                 backgroundColor: Colors.blueAccent,
                                 child: Text(
-                                  t.linea,
+                                  train.line,
                                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -483,7 +519,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Salida: ${t.horaSalida}  →  Llegada: ${t.horaLlegada}',
+                                      '${t('origin')}: ${train.departureTime}  →  ${t('destination')}: ${train.arrivalTime}',
                                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -497,9 +533,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                           color: Colors.grey[400],
                                           borderRadius: BorderRadius.circular(8),
                                         ),
-                                        child: const Text(
-                                          'Past',
-                                          style: TextStyle(
+                                        child: Text(
+                                          t('past'),
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -514,11 +550,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 4),
-                                  Text('Duración: ${t.duracion}', style: theme.textTheme.bodySmall),
-                                  Text('Tren: ${t.cdgoTren}', style: theme.textTheme.bodySmall),
+                                  Text('${t('duration')}: ${train.duration}', style: theme.textTheme.bodySmall),
+                                  Text('${t('train')}: ${train.trainCode}', style: theme.textTheme.bodySmall),
                                 ],
                               ),
-                              trailing: t.accesible
+                              trailing: train.accessible
                                   ? const Icon(Icons.accessible, color: Colors.green)
                                   : null,
                             ),
@@ -538,30 +574,30 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 }
 
 class TrainSchedule {
-  final String linea;
-  final String cdgoTren;
-  final String horaSalida;
-  final String horaLlegada;
-  final String duracion;
-  final bool accesible;
+  final String line;
+  final String trainCode;
+  final String departureTime;
+  final String arrivalTime;
+  final String duration;
+  final bool accessible;
 
   TrainSchedule({
-    required this.linea,
-    required this.cdgoTren,
-    required this.horaSalida,
-    required this.horaLlegada,
-    required this.duracion,
-    required this.accesible,
+    required this.line,
+    required this.trainCode,
+    required this.departureTime,
+    required this.arrivalTime,
+    required this.duration,
+    required this.accessible,
   });
 
   factory TrainSchedule.fromJson(Map<String, dynamic> json) {
     return TrainSchedule(
-      linea: json['linea'] ?? '',
-      cdgoTren: json['cdgoTren'] ?? '',
-      horaSalida: json['horaSalida'] ?? '',
-      horaLlegada: json['horaLlegada'] ?? '',
-      duracion: json['duracion'] ?? '',
-      accesible: json['accesible'] ?? false,
+      line: json['linea'] ?? '',
+      trainCode: json['cdgoTren'] ?? '',
+      departureTime: json['horaSalida'] ?? '',
+      arrivalTime: json['horaLlegada'] ?? '',
+      duration: json['duracion'] ?? '',
+      accessible: json['accesible'] ?? false,
     );
   }
 }
