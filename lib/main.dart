@@ -121,7 +121,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 DropdownButtonFormField<String>(
                   value: _selectedOrigin,
                   decoration: const InputDecoration(labelText: 'Origen'),
-                  items: stations.entries.map((entry) {
+                  items: stations.entries
+                      .where((entry) => entry.key != _selectedDestination)
+                      .map((entry) {
                     return DropdownMenuItem<String>(
                       value: entry.key,
                       child: Text(entry.value),
@@ -131,16 +133,44 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     if (value != null && value != _selectedOrigin) {
                       setState(() {
                         _selectedOrigin = value;
+                        // If destination is now the same as origin, change destination
+                        if (_selectedDestination == value) {
+                          // Pick a different destination (first in list that's not origin)
+                          _selectedDestination = stations.keys.firstWhere((k) => k != value);
+                        }
                         _futureSchedule = fetchSchedule();
                       });
                     }
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          final temp = _selectedOrigin;
+                          _selectedOrigin = _selectedDestination;
+                          _selectedDestination = temp;
+                          _futureSchedule = fetchSchedule();
+                        });
+                      },
+                      icon: const Icon(Icons.swap_horiz),
+                      label: const Text('Swap'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _selectedDestination,
                   decoration: const InputDecoration(labelText: 'Destino'),
-                  items: stations.entries.map((entry) {
+                  items: stations.entries
+                      .where((entry) => entry.key != _selectedOrigin)
+                      .map((entry) {
                     return DropdownMenuItem<String>(
                       value: entry.key,
                       child: Text(entry.value),
@@ -150,6 +180,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     if (value != null && value != _selectedDestination) {
                       setState(() {
                         _selectedDestination = value;
+                        // If origin is now the same as destination, change origin
+                        if (_selectedOrigin == value) {
+                          _selectedOrigin = stations.keys.firstWhere((k) => k != value);
+                        }
                         _futureSchedule = fetchSchedule();
                       });
                     }
