@@ -1,0 +1,15 @@
+name: cercanias_schedule
+description: A simple app to show Cercanias train schedules from San Vicente Centre to Alicante.
+version: 1.0.0+1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  intl: ^0.19.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
