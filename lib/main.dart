@@ -63,6 +63,39 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "60914": "Universidad de Alicante",
   };
 
+  // Map station codes to icons or emojis
+  static const Map<String, dynamic> stationIcons = {
+    "60911": Icons.beach_access, // Alicante - beach
+    "60913": Icons.school,       // Sant Vicent Centre - university
+    "61200": Icons.location_city, // Murcia del Carmen - city
+    "62103": Icons.park,         // Elx Parc - palm park
+    "62102": Icons.nature,       // Elx Carrùs - nature
+    "62002": Icons.church,       // Orihuela - cathedral
+    "62101": Icons.grass,        // Crevillent - grass
+    "62100": Icons.landscape,    // San Isidro - landscape
+    "60914": Icons.account_balance, // Universidad de Alicante
+    // Generic or less known stations
+    "07004": Icons.train,
+    "07007": Icons.train,
+    "06008": Icons.train,
+    "06002": Icons.train,
+    "06100": Icons.train,
+    "62001": Icons.train,
+    "62003": Icons.train,
+    "62108": Icons.train,
+    "07003": Icons.train,
+    "06004": Icons.train,
+    "06001": Icons.train,
+    "06005": Icons.train,
+    "06006": Icons.train,
+    "61101": Icons.train,
+    "06007": Icons.train,
+    "07001": Icons.train,
+    "62109": Icons.train,
+    "62104": Icons.train,
+    "06003": Icons.train,
+  };
+
   // Add state for selected origin and destination
   String _selectedOrigin = '60913'; // Default: Sant Vicent Centre
   String _selectedDestination = '60911'; // Default: Alacant Terminal
@@ -122,12 +155,37 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             color: Colors.white.withOpacity(0.8),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Text(
-            '${stations[_selectedOrigin] ?? 'Origen'} → ${stations[_selectedDestination] ?? 'Destino'}',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.primaryColor,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                stationIcons[_selectedOrigin] ?? Icons.location_on,
+                color: Color(0xFF5B86E5),
+                size: 22,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                stations[_selectedOrigin] ?? 'Origen',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text(' → '),
+              Icon(
+                stationIcons[_selectedDestination] ?? Icons.flag_circle,
+                color: Color(0xFF283E51),
+                size: 22,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                stations[_selectedDestination] ?? 'Destino',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -198,7 +256,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     .map((entry) {
                                   return DropdownMenuItem<String>(
                                     value: entry.key,
-                                    child: Text(entry.value),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          stationIcons[entry.key] ?? Icons.train,
+                                          color: Color(0xFF5B86E5),
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(entry.value),
+                                      ],
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (value) {
@@ -254,7 +322,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     .map((entry) {
                                   return DropdownMenuItem<String>(
                                     value: entry.key,
-                                    child: Text(entry.value),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          stationIcons[entry.key] ?? Icons.train,
+                                          color: Color(0xFF283E51),
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(entry.value),
+                                      ],
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (value) {
