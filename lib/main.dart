@@ -66,6 +66,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   // Add state for selected origin and destination
   String _selectedOrigin = '60913'; // Default: Sant Vicent Centre
   String _selectedDestination = '60911'; // Default: Alacant Terminal
+  String _selectedDay = 'today'; // 'today' or 'tomorrow'
   late Future<List<TrainSchedule>> _futureSchedule;
 
   @override
@@ -76,13 +77,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   // Update fetchSchedule to use selected origin and destination
   Future<List<TrainSchedule>> fetchSchedule() async {
-    final today = DateFormat('yyyyMMdd').format(DateTime.now());
+    final now = DateTime.now();
+    final date = _selectedDay == 'today' ? now : now.add(const Duration(days: 1));
+    final formattedDate = DateFormat('yyyyMMdd').format(date);
     final url = Uri.parse('https://horarios.renfe.com/cer/HorariosServlet');
     final body = jsonEncode({
       "nucleo": "41",
       "origen": _selectedOrigin,
       "destino": _selectedDestination,
-      "fchaViaje": today,
+      "fchaViaje": formattedDate,
       "validaReglaNegocio": true,
       "tiempoReal": false,
       "servicioHorarios": "VTI",
@@ -149,6 +152,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
                     child: Column(
                       children: [
+                        // Day selector
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('Today'),
+                              selected: _selectedDay == 'today',
+                              onSelected: (selected) {
+                                if (selected && _selectedDay != 'today') {
+                                  setState(() {
+                                    _selectedDay = 'today';
+                                    _futureSchedule = fetchSchedule();
+                                  });
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            ChoiceChip(
+                              label: const Text('Tomorrow'),
+                              selected: _selectedDay == 'tomorrow',
+                              onSelected: (selected) {
+                                if (selected && _selectedDay != 'tomorrow') {
+                                  setState(() {
+                                    _selectedDay = 'tomorrow';
+                                    _futureSchedule = fetchSchedule();
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         Row(
                           children: [
                             const Icon(Icons.train, color: Colors.redAccent),
@@ -260,32 +295,79 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       separatorBuilder: (context, i) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final t = trains[i];
-                        return Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 3,
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.redAccent,
-                              child: Text(
-                                t.linea,
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        bool isPast = false;
+                        if (_selectedDay == 'today') {
+                          final now = DateTime.now();
+                          final todayStr = DateFormat('yyyyMMdd').format(now);
+                          final horaSalida = t.horaSalida;
+                          // horaSalida is HH:mm, parse as today
+                          final parts = horaSalida.split(':');
+                          if (parts.length == 2) {
+                            final h = int.tryParse(parts[0]) ?? 0;
+                            final m = int.tryParse(parts[1]) ?? 0;
+                            final depTime = DateTime(now.year, now.month, now.day, h, m);
+                            if (depTime.isBefore(now)) {
+                              isPast = true;
+                            }
+                          }
+                        }
+                        return Opacity(
+                          opacity: isPast ? 0.4 : 1.0,
+                          child: Card(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 3,
+                            color: isPast ? Colors.grey[100] : null,
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.redAccent,
+                                child: Text(
+                                  t.linea,
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
                               ),
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Salida: ${t.horaSalida}  →  Llegada: ${t.horaLlegada}',
+                                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (isPast)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[400],
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Text(
+                                          'Past',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text('Duración: ${t.duracion}', style: theme.textTheme.bodySmall),
+                                  Text('Tren: ${t.cdgoTren}', style: theme.textTheme.bodySmall),
+                                ],
+                              ),
+                              trailing: t.accesible
+                                  ? const Icon(Icons.accessible, color: Colors.green)
+                                  : null,
                             ),
-                            title: Text(
-                              'Salida: ${t.horaSalida}  →  Llegada: ${t.horaLlegada}',
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Text('Duración: ${t.duracion}', style: theme.textTheme.bodySmall),
-                                Text('Tren: ${t.cdgoTren}', style: theme.textTheme.bodySmall),
-                              ],
-                            ),
-                            trailing: t.accesible
-                                ? const Icon(Icons.accessible, color: Colors.green)
-                                : null,
                           ),
                         );
                       },
