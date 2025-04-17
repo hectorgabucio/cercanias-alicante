@@ -106,121 +106,196 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          '${stations[_selectedOrigin] ?? 'Origen'} → ${stations[_selectedDestination] ?? 'Destino'}',
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
+            '${stations[_selectedOrigin] ?? 'Origen'} → ${stations[_selectedDestination] ?? 'Destino'}',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                DropdownButtonFormField<String>(
-                  value: _selectedOrigin,
-                  decoration: const InputDecoration(labelText: 'Origen'),
-                  items: stations.entries
-                      .where((entry) => entry.key != _selectedDestination)
-                      .map((entry) {
-                    return DropdownMenuItem<String>(
-                      value: entry.key,
-                      child: Text(entry.value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null && value != _selectedOrigin) {
-                      setState(() {
-                        _selectedOrigin = value;
-                        // If destination is now the same as origin, change destination
-                        if (_selectedDestination == value) {
-                          // Pick a different destination (first in list that's not origin)
-                          _selectedDestination = stations.keys.firstWhere((k) => k != value);
-                        }
-                        _futureSchedule = fetchSchedule();
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          final temp = _selectedOrigin;
-                          _selectedOrigin = _selectedDestination;
-                          _selectedDestination = temp;
-                          _futureSchedule = fetchSchedule();
-                        });
-                      },
-                      icon: const Icon(Icons.swap_horiz),
-                      label: const Text('Swap'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFDEB71), Color(0xFFF8D800), Color(0xFFF1C40F)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 4,
+                  color: Colors.white.withOpacity(0.95),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.train, color: Colors.redAccent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedOrigin,
+                                decoration: const InputDecoration(labelText: 'Origen'),
+                                borderRadius: BorderRadius.circular(12),
+                                items: stations.entries
+                                    .where((entry) => entry.key != _selectedDestination)
+                                    .map((entry) {
+                                  return DropdownMenuItem<String>(
+                                    value: entry.key,
+                                    child: Text(entry.value),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  if (value != null && value != _selectedOrigin) {
+                                    setState(() {
+                                      _selectedOrigin = value;
+                                      if (_selectedDestination == value) {
+                                        _selectedDestination = stations.keys.firstWhere((k) => k != value);
+                                      }
+                                      _futureSchedule = fetchSchedule();
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Tooltip(
+                              message: 'Swap origin and destination',
+                              child: FloatingActionButton(
+                                heroTag: 'swap',
+                                mini: true,
+                                backgroundColor: Colors.redAccent,
+                                onPressed: () {
+                                  setState(() {
+                                    final temp = _selectedOrigin;
+                                    _selectedOrigin = _selectedDestination;
+                                    _selectedDestination = temp;
+                                    _futureSchedule = fetchSchedule();
+                                  });
+                                },
+                                child: const Icon(Icons.swap_horiz, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(Icons.flag, color: Colors.green),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedDestination,
+                                decoration: const InputDecoration(labelText: 'Destino'),
+                                borderRadius: BorderRadius.circular(12),
+                                items: stations.entries
+                                    .where((entry) => entry.key != _selectedOrigin)
+                                    .map((entry) {
+                                  return DropdownMenuItem<String>(
+                                    value: entry.key,
+                                    child: Text(entry.value),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  if (value != null && value != _selectedDestination) {
+                                    setState(() {
+                                      _selectedDestination = value;
+                                      if (_selectedOrigin == value) {
+                                        _selectedOrigin = stations.keys.firstWhere((k) => k != value);
+                                      }
+                                      _futureSchedule = fetchSchedule();
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: _selectedDestination,
-                  decoration: const InputDecoration(labelText: 'Destino'),
-                  items: stations.entries
-                      .where((entry) => entry.key != _selectedOrigin)
-                      .map((entry) {
-                    return DropdownMenuItem<String>(
-                      value: entry.key,
-                      child: Text(entry.value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null && value != _selectedDestination) {
-                      setState(() {
-                        _selectedDestination = value;
-                        // If origin is now the same as destination, change origin
-                        if (_selectedOrigin == value) {
-                          _selectedOrigin = stations.keys.firstWhere((k) => k != value);
-                        }
-                        _futureSchedule = fetchSchedule();
-                      });
+              ),
+              Expanded(
+                child: FutureBuilder<List<TrainSchedule>>(
+                  future: _futureSchedule,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No trains found for today.'));
                     }
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<TrainSchedule>>(
-              future: _futureSchedule,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No trains found for today.'));
-                }
-                final trains = snapshot.data!;
-                return ListView.separated(
-                  itemCount: trains.length,
-                  separatorBuilder: (context, i) => const Divider(height: 1),
-                  itemBuilder: (context, i) {
-                    final t = trains[i];
-                    return ListTile(
-                      leading: CircleAvatar(child: Text(t.linea)),
-                      title: Text('Salida: ${t.horaSalida}  →  Llegada: ${t.horaLlegada}'),
-                      subtitle: Text('Duración: ${t.duracion}  |  Tren: ${t.cdgoTren}'),
-                      trailing: t.accesible ? const Icon(Icons.accessible, color: Colors.green) : null,
+                    final trains = snapshot.data!;
+                    return ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      itemCount: trains.length,
+                      separatorBuilder: (context, i) => const SizedBox(height: 10),
+                      itemBuilder: (context, i) {
+                        final t = trains[i];
+                        return Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: 3,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.redAccent,
+                              child: Text(
+                                t.linea,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            title: Text(
+                              'Salida: ${t.horaSalida}  →  Llegada: ${t.horaLlegada}',
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text('Duración: ${t.duracion}', style: theme.textTheme.bodySmall),
+                                Text('Tren: ${t.cdgoTren}', style: theme.textTheme.bodySmall),
+                              ],
+                            ),
+                            trailing: t.accesible
+                                ? const Icon(Icons.accessible, color: Colors.green)
+                                : null,
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
