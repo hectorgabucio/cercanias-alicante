@@ -116,48 +116,44 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedOrigin,
-                    decoration: const InputDecoration(labelText: 'Origen'),
-                    items: stations.entries.map((entry) {
-                      return DropdownMenuItem<String>(
-                        value: entry.key,
-                        child: Text(entry.value),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null && value != _selectedOrigin) {
-                        setState(() {
-                          _selectedOrigin = value;
-                          _futureSchedule = fetchSchedule();
-                        });
-                      }
-                    },
-                  ),
+                DropdownButtonFormField<String>(
+                  value: _selectedOrigin,
+                  decoration: const InputDecoration(labelText: 'Origen'),
+                  items: stations.entries.map((entry) {
+                    return DropdownMenuItem<String>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null && value != _selectedOrigin) {
+                      setState(() {
+                        _selectedOrigin = value;
+                        _futureSchedule = fetchSchedule();
+                      });
+                    }
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedDestination,
-                    decoration: const InputDecoration(labelText: 'Destino'),
-                    items: stations.entries.map((entry) {
-                      return DropdownMenuItem<String>(
-                        value: entry.key,
-                        child: Text(entry.value),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null && value != _selectedDestination) {
-                        setState(() {
-                          _selectedDestination = value;
-                          _futureSchedule = fetchSchedule();
-                        });
-                      }
-                    },
-                  ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: _selectedDestination,
+                  decoration: const InputDecoration(labelText: 'Destino'),
+                  items: stations.entries.map((entry) {
+                    return DropdownMenuItem<String>(
+                      value: entry.key,
+                      child: Text(entry.value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null && value != _selectedDestination) {
+                      setState(() {
+                        _selectedDestination = value;
+                        _futureSchedule = fetchSchedule();
+                      });
+                    }
+                  },
                 ),
               ],
             ),
