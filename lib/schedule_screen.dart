@@ -24,6 +24,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   String selectedDay = 'today';
   late Future<List<TrainSchedule>> futureSchedule;
   bool showPastTrains = false;
+  late TextEditingController _originController;
+  late TextEditingController _destinationController;
 
   static const Map<String, String> stations = {
     "07004": "Aguilas",
@@ -91,12 +93,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
+    _originController = TextEditingController(text: stations[selectedOrigin] ?? '');
+    _destinationController = TextEditingController(text: stations[selectedDestination] ?? '');
     final systemLang = ui.window.locale.languageCode;
     lang = systemLang;
     selectedOrigin = defaultOrigin;
     selectedDestination = defaultDestination;
     futureSchedule = fetchSchedule();
     loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _originController.dispose();
+    _destinationController.dispose();
+    super.dispose();
   }
 
   Future<void> loadSettings() async {
@@ -305,42 +316,86 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               children: [
                 Text(t(lang, 'origin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: selectedOrigin,
-                  items: stations.entries
-                      .map((entry) => DropdownMenuItem(
-                            value: entry.key,
-                            child: Text(entry.value),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedOrigin = value;
-                        futureSchedule = fetchSchedule();
-                      });
+                Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) {
+                      _originController.text = '';
                     }
                   },
+                  child: Autocomplete<MapEntry<String, String>>(
+                    key: const ValueKey('origin-autocomplete'),
+                    initialValue: TextEditingValue(text: stations[selectedOrigin] ?? ''),
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text == '') {
+                        return stations.entries;
+                      }
+                      return stations.entries.where((entry) =>
+                        entry.value.toLowerCase().contains(textEditingValue.text.toLowerCase())
+                      );
+                    },
+                    displayStringForOption: (option) => option.value,
+                    onSelected: (option) {
+                      setState(() {
+                        selectedOrigin = option.key;
+                        futureSchedule = fetchSchedule();
+                      });
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                      _originController = controller;
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          hintText: t(lang, 'searchStation'),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.search),
+                        ),
+                        onEditingComplete: onEditingComplete,
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(t(lang, 'destination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: selectedDestination,
-                  items: stations.entries
-                      .map((entry) => DropdownMenuItem(
-                            value: entry.key,
-                            child: Text(entry.value),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedDestination = value;
-                        futureSchedule = fetchSchedule();
-                      });
+                Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) {
+                      _destinationController.text = '';
                     }
                   },
+                  child: Autocomplete<MapEntry<String, String>>(
+                    key: const ValueKey('destination-autocomplete'),
+                    initialValue: TextEditingValue(text: stations[selectedDestination] ?? ''),
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text == '') {
+                        return stations.entries;
+                      }
+                      return stations.entries.where((entry) =>
+                        entry.value.toLowerCase().contains(textEditingValue.text.toLowerCase())
+                      );
+                    },
+                    displayStringForOption: (option) => option.value,
+                    onSelected: (option) {
+                      setState(() {
+                        selectedDestination = option.key;
+                        futureSchedule = fetchSchedule();
+                      });
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                      _destinationController = controller;
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          hintText: t(lang, 'searchStation'),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.search),
+                        ),
+                        onEditingComplete: onEditingComplete,
+                      );
+                    },
+                  ),
                 ),
                 const SizedBox(height: 24),
                 SingleChildScrollView(
