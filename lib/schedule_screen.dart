@@ -1,55 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/train_schedule.dart';
 import 'settings_page.dart';
-
-const Map<String, Map<String, String>> _translations = {
-  'es': {
-    'appTitle': 'Cercanías Alicante Murcia',
-    'origin': 'Origen',
-    'destination': 'Destino',
-    'selectOrigin': 'Selecciona origen',
-    'selectDestination': 'Selecciona destino',
-    'swapTooltip': 'Intercambiar origen y destino',
-    'today': 'Hoy',
-    'tomorrow': 'Mañana',
-    'showPast': 'Mostrar trenes pasados',
-    'searchStation': 'Buscar estación...',
-    'past': 'Pasado',
-    'duration': 'Duración',
-    'train': 'Tren',
-    'settings': 'Ajustes',
-    'language': 'Idioma',
-    'save': 'Guardar',
-    'defaultOrigin': 'Origen por defecto',
-    'defaultDestination': 'Destino por defecto',
-    'selectLanguage': 'Selecciona idioma',
-    'spanish': 'Español',
-    'english': 'Inglés',
-  },
-  'en': {
-    'appTitle': 'Cercanías Alicante Murcia',
-    'origin': 'Origin',
-    'destination': 'Destination',
-    'selectOrigin': 'Select origin',
-    'selectDestination': 'Select destination',
-    'swapTooltip': 'Swap origin and destination',
-    'today': 'Today',
-    'tomorrow': 'Tomorrow',
-    'showPast': 'Show past trains',
-    'searchStation': 'Search station...',
-    'past': 'Past',
-    'duration': 'Duration',
-    'train': 'Train',
-    'settings': 'Settings',
-    'language': 'Language',
-    'save': 'Save',
-    'defaultOrigin': 'Default origin',
-    'defaultDestination': 'Default destination',
-    'selectLanguage': 'Select language',
-    'spanish': 'Spanish',
-    'english': 'English',
-  }
-};
+import 'localization.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -59,8 +11,6 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  static const Map<String, Map<String, String>> translations = _translations;
-
   late String lang;
   late String selectedOrigin;
   late String selectedDestination;
@@ -101,7 +51,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Origin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t(lang, 'origin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             DropdownButton<String>(
               value: selectedOrigin,
@@ -120,7 +70,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               },
             ),
             const SizedBox(height: 16),
-            const Text('Destination', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t(lang, 'destination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             DropdownButton<String>(
               value: selectedDestination,
@@ -146,7 +96,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     futureSchedule = fetchSchedule();
                   });
                 },
-                child: const Text('Search'),
+                child: Text(t(lang, 'search')),
               ),
             ),
             const SizedBox(height: 24),
@@ -199,8 +149,6 @@ class ScheduleAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Pass lang via provider or parameter if needed
-    final String title = _translations['es']!['appTitle']!;
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 2,
@@ -213,7 +161,7 @@ class ScheduleAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       title: Text(
-        title,
+        t('es', 'appTitle'),
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 20,
@@ -251,7 +199,7 @@ class ScheduleDrawer extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                _translations[lang]!['settings']!,
+                t(lang, 'settings'),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -262,7 +210,7 @@ class ScheduleDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: Text(_translations[lang]!['settings']!),
+            title: Text(t(lang, 'settings')),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'localization.dart';
 
 void main() {
   runApp(const CercaniasScheduleApp());
@@ -15,7 +16,7 @@ class CercaniasScheduleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cercanías Alicante Murcia',
+      title: t('es', 'appTitle'),
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
@@ -33,61 +34,7 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  // Translation map
-  static const translations = {
-    'es': {
-      'appTitle': 'Cercanías Alicante Murcia',
-      'origin': 'Origen',
-      'destination': 'Destino',
-      'selectOrigin': 'Selecciona origen',
-      'selectDestination': 'Selecciona destino',
-      'swapTooltip': 'Intercambiar origen y destino',
-      'today': 'Hoy',
-      'tomorrow': 'Mañana',
-      'showPast': 'Mostrar trenes pasados',
-      'searchStation': 'Buscar estación...',
-      'past': 'Pasado',
-      'duration': 'Duración',
-      'train': 'Tren',
-      'settings': 'Ajustes',
-      'language': 'Idioma',
-      'save': 'Guardar',
-      'defaultOrigin': 'Origen por defecto',
-      'defaultDestination': 'Destino por defecto',
-      'selectLanguage': 'Selecciona idioma',
-      'spanish': 'Español',
-      'english': 'Inglés',
-    },
-    'en': {
-      'appTitle': 'Cercanías Alicante Murcia',
-      'origin': 'Origin',
-      'destination': 'Destination',
-      'selectOrigin': 'Select origin',
-      'selectDestination': 'Select destination',
-      'swapTooltip': 'Swap origin and destination',
-      'today': 'Today',
-      'tomorrow': 'Tomorrow',
-      'showPast': 'Show past trains',
-      'searchStation': 'Search station...',
-      'past': 'Past',
-      'duration': 'Duration',
-      'train': 'Train',
-      'settings': 'Settings',
-      'language': 'Language',
-      'save': 'Save',
-      'defaultOrigin': 'Default origin',
-      'defaultDestination': 'Default destination',
-      'selectLanguage': 'Select language',
-      'spanish': 'Spanish',
-      'english': 'English',
-    }
-  };
-
-  // Detect system language on startup
   late String lang;
-  String t(String key) => translations[lang]![key] ?? key;
-
-  // App-wide settings
   String selectedOrigin = '60913'; // Sant Vicent Centre
   String selectedDestination = '60911'; // Alacant Terminal
   String defaultOrigin = '60913';
@@ -102,7 +49,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final savedOrigin = prefs.getString('defaultOrigin');
     final savedDestination = prefs.getString('defaultDestination');
     setState(() {
-      if (savedLang != null && translations.containsKey(savedLang)) lang = savedLang;
+      if (savedLang != null) lang = savedLang;
       if (savedOrigin != null && stations.containsKey(savedOrigin)) defaultOrigin = savedOrigin;
       if (savedDestination != null && stations.containsKey(savedDestination)) defaultDestination = savedDestination;
       selectedOrigin = defaultOrigin;
@@ -122,7 +69,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void initState() {
     super.initState();
     final systemLang = ui.window.locale.languageCode;
-    lang = translations.containsKey(systemLang) ? systemLang : 'es';
+    lang = systemLang;
     selectedOrigin = defaultOrigin;
     selectedDestination = defaultDestination;
     futureSchedule = fetchSchedule();
@@ -153,7 +100,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  // Add station codes and names
   static const Map<String, String> stations = {
     "07004": "Aguilas",
     "07007": "Aguilas el Labradorcico",
@@ -185,7 +131,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "60914": "Universidad de Alicante",
   };
 
-  // Map station codes to icons or emojis
   static const Map<String, dynamic> stationIcons = {
     "60911": Icons.beach_access, // Alicante - beach
     "60913": Icons.school,       // Sant Vicent Centre - university
@@ -218,7 +163,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "06003": Icons.train,
   };
 
-  // Helper for modal bottom sheet station picker
   Future<void> _pickStation({
     required bool isOrigin,
     required BuildContext context,
@@ -258,7 +202,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     child: TextField(
                       autofocus: true,
                       decoration: InputDecoration(
-                        hintText: t('searchStation'),
+                        hintText: t(lang, 'searchStation'),
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                         prefixIcon: const Icon(Icons.search),
                       ),
@@ -304,7 +248,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  // Update fetchSchedule to use selected origin and destination
   Future<List<TrainSchedule>> fetchSchedule() async {
     final now = DateTime.now();
     final date = selectedDay == 'today' ? now : now.add(const Duration(days: 1));
@@ -353,7 +296,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ),
         ),
         title: Text(
-          t('appTitle'),
+          t(lang, 'appTitle'),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -374,7 +317,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
               child: Center(
                 child: Text(
-                  t('settings'),
+                  t(lang, 'settings'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -385,7 +328,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: Text(t('settings')),
+              title: Text(t(lang, 'settings')),
               onTap: () {
                 Navigator.pop(context);
                 openSettings();
@@ -420,7 +363,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ChoiceChip(
-                              label: Text(t('today')),
+                              label: Text(t(lang, 'today')),
                               selected: selectedDay == 'today',
                               onSelected: (selected) {
                                 if (selected && selectedDay != 'today') {
@@ -433,7 +376,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                             const SizedBox(width: 8),
                             ChoiceChip(
-                              label: Text(t('tomorrow')),
+                              label: Text(t(lang, 'tomorrow')),
                               selected: selectedDay == 'tomorrow',
                               onSelected: (selected) {
                                 if (selected && selectedDay != 'tomorrow') {
@@ -457,7 +400,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 });
                               },
                             ),
-                            Text(t('showPast')),
+                            Text(t(lang, 'showPast')),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -483,7 +426,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            stations[selectedOrigin] ?? t('selectOrigin'),
+                                            stations[selectedOrigin] ?? t(lang, 'selectOrigin'),
                                             style: theme.textTheme.bodyLarge,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -502,7 +445,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Tooltip(
-                              message: t('swapTooltip'),
+                              message: t(lang, 'swapTooltip'),
                               child: FloatingActionButton(
                                 heroTag: 'swap',
                                 mini: true,
@@ -543,7 +486,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
-                                            stations[selectedDestination] ?? t('selectDestination'),
+                                            stations[selectedDestination] ?? t(lang, 'selectDestination'),
                                             style: theme.textTheme.bodyLarge,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -616,7 +559,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${t('origin')}: ${train.departureTime}  →  ${t('destination')}: ${train.arrivalTime}',
+                                      '${t(lang, 'origin')}: ${train.departureTime}  →  ${t(lang, 'destination')}: ${train.arrivalTime}',
                                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -631,7 +574,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          t('past'),
+                                          t(lang, 'past'),
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -647,8 +590,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 4),
-                                  Text('${t('duration')}: ${train.duration}', style: theme.textTheme.bodySmall),
-                                  Text('${t('train')}: ${train.trainCode}', style: theme.textTheme.bodySmall),
+                                  Text('${t(lang, 'duration')}: ${train.duration}', style: theme.textTheme.bodySmall),
+                                  Text('${t(lang, 'train')}: ${train.trainCode}', style: theme.textTheme.bodySmall),
                                 ],
                               ),
                               trailing: train.accessible
@@ -725,14 +668,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final translations = _ScheduleScreenState.translations;
-    String t(String key) => translations[lang]![key] ?? key;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        title: Text(t('settings'), style: const TextStyle(color: Colors.black)),
+        title: Text(t(lang, 'settings'), style: const TextStyle(color: Colors.black)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
@@ -740,18 +680,18 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t('language'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t(lang, 'language'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             DropdownButton<String>(
               value: lang,
               items: [
-                DropdownMenuItem(value: 'es', child: Text(t('spanish'))),
-                DropdownMenuItem(value: 'en', child: Text(t('english'))),
+                DropdownMenuItem(value: 'es', child: Text(t(lang, 'spanish'))),
+                DropdownMenuItem(value: 'en', child: Text(t(lang, 'english'))),
               ],
               onChanged: (value) => setState(() => lang = value!),
             ),
             const SizedBox(height: 24),
-            Text(t('defaultOrigin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t(lang, 'defaultOrigin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             DropdownButton<String>(
               value: defaultOrigin,
@@ -764,7 +704,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: (value) => setState(() => defaultOrigin = value!),
             ),
             const SizedBox(height: 24),
-            Text(t('defaultDestination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t(lang, 'defaultDestination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 8),
             DropdownButton<String>(
               value: defaultDestination,
@@ -780,7 +720,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Center(
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.save),
-                label: Text(t('save')),
+                label: Text(t(lang, 'save')),
                 onPressed: () {
                   Navigator.pop(context, {
                     'lang': lang,

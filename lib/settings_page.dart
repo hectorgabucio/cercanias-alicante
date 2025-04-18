@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'localization.dart';
 
 class SettingsPage extends StatefulWidget {
   final String lang;
@@ -67,7 +68,7 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 1,
-      title: const Text('Settings', style: TextStyle(color: Colors.black)),
+      title: Text(t('es', 'settings_title'), style: const TextStyle(color: Colors.black)),
       iconTheme: const IconThemeData(color: Colors.black),
     );
   }
@@ -79,17 +80,6 @@ class SettingsBody extends StatelessWidget {
   final String defaultDestination;
   final void Function(String, String, String) onChanged;
   final VoidCallback onSave;
-
-  static const List<Map<String, String>> languages = [
-    {'code': 'es', 'label': 'Spanish'},
-    {'code': 'en', 'label': 'English'},
-  ];
-
-  static const List<Map<String, String>> stations = [
-    {'code': '60913', 'label': 'Sant Vicent Centre'},
-    {'code': '60911', 'label': 'Alacant Terminal'},
-    // Add more stations as needed
-  ];
 
   const SettingsBody({
     super.key,
@@ -107,16 +97,20 @@ class SettingsBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Language', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(t(lang, 'language'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 8),
           DropdownButton<String>(
             value: lang,
-            items: languages
-                .map((langMap) => DropdownMenuItem(
-                      value: langMap['code'],
-                      child: Text(langMap['label']!),
-                    ))
-                .toList(),
+            items: [
+              DropdownMenuItem(
+                value: 'es',
+                child: Text(t(lang, 'spanish')),
+              ),
+              DropdownMenuItem(
+                value: 'en',
+                child: Text(t(lang, 'english')),
+              ),
+            ],
             onChanged: (String? value) {
               if (value != null) {
                 onChanged(value, defaultOrigin, defaultDestination);
@@ -124,16 +118,20 @@ class SettingsBody extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          const Text('Default Origin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(t(lang, 'default_origin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 8),
           DropdownButton<String>(
             value: defaultOrigin,
-            items: stations
-                .map((station) => DropdownMenuItem(
-                      value: station['code'],
-                      child: Text(station['label']!),
-                    ))
-                .toList(),
+            items: [
+              DropdownMenuItem(
+                value: '60913',
+                child: Text(t(lang, 'sant_vicent_centre')),
+              ),
+              DropdownMenuItem(
+                value: '60911',
+                child: Text(t(lang, 'alacant_terminal')),
+              ),
+            ],
             onChanged: (String? value) {
               if (value != null) {
                 onChanged(lang, value, defaultDestination);
@@ -141,16 +139,20 @@ class SettingsBody extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          const Text('Default Destination', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(t(lang, 'default_destination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 8),
           DropdownButton<String>(
             value: defaultDestination,
-            items: stations
-                .map((station) => DropdownMenuItem(
-                      value: station['code'],
-                      child: Text(station['label']!),
-                    ))
-                .toList(),
+            items: [
+              DropdownMenuItem(
+                value: '60913',
+                child: Text(t(lang, 'sant_vicent_centre')),
+              ),
+              DropdownMenuItem(
+                value: '60911',
+                child: Text(t(lang, 'alacant_terminal')),
+              ),
+            ],
             onChanged: (String? value) {
               if (value != null) {
                 onChanged(lang, defaultOrigin, value);
@@ -161,7 +163,7 @@ class SettingsBody extends StatelessWidget {
           Center(
             child: ElevatedButton.icon(
               icon: const Icon(Icons.save),
-              label: const Text('Save'),
+              label: Text(t(lang, 'save')),
               onPressed: onSave,
             ),
           ),
