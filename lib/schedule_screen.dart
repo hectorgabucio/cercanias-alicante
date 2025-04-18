@@ -318,87 +318,129 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t(lang, 'origin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                const SizedBox(height: 8),
-                Focus(
-                  onFocusChange: (hasFocus) {
-                    if (hasFocus) {
-                      _originController.text = '';
-                    }
-                  },
-                  child: Autocomplete<MapEntry<String, String>>(
-                    key: const ValueKey('origin-autocomplete'),
-                    initialValue: TextEditingValue(text: stations[selectedOrigin] ?? ''),
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text == '') {
-                        return stations.entries;
-                      }
-                      return stations.entries.where((entry) =>
-                        entry.value.toLowerCase().contains(textEditingValue.text.toLowerCase())
-                      );
-                    },
-                    displayStringForOption: (option) => option.value,
-                    onSelected: (option) {
-                      setState(() {
-                        selectedOrigin = option.key;
-                        futureSchedule = fetchSchedule();
-                      });
-                    },
-                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                      _originController = controller;
-                      return TextField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          hintText: t(lang, 'searchStation'),
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.search),
+                // --- Modern station selector UI with floating swap button ---
+                SizedBox(
+                  height: 170, // Increased to prevent overflow
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              final result = await showDialog<MapEntry<String, String>>(
+                                context: context,
+                                builder: (context) => _StationPickerDialog(
+                                  stations: stations,
+                                  selected: selectedOrigin,
+                                  title: t(lang, 'fromStation'),
+                                ),
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  selectedOrigin = result.key;
+                                  futureSchedule = fetchSchedule();
+                                });
+                              }
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    stations[selectedOrigin] ?? '',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              final result = await showDialog<MapEntry<String, String>>(
+                                context: context,
+                                builder: (context) => _StationPickerDialog(
+                                  stations: stations,
+                                  selected: selectedDestination,
+                                  title: t(lang, 'toStation'),
+                                ),
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  selectedDestination = result.key;
+                                  futureSchedule = fetchSchedule();
+                                });
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    stations[selectedDestination] ?? '',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Floating swap button
+                      Positioned(
+                        right: 10,
+                        child: Material(
+                          color: Colors.blue,
+                          shape: const CircleBorder(),
+                          elevation: 6,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: () {
+                              setState(() {
+                                final temp = selectedOrigin;
+                                selectedOrigin = selectedDestination;
+                                selectedDestination = temp;
+                                futureSchedule = fetchSchedule();
+                              });
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Icon(Icons.swap_vert, color: Colors.white, size: 28),
+                            ),
+                          ),
                         ),
-                        onEditingComplete: onEditingComplete,
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(t(lang, 'destination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                const SizedBox(height: 8),
-                Focus(
-                  onFocusChange: (hasFocus) {
-                    if (hasFocus) {
-                      _destinationController.text = '';
-                    }
-                  },
-                  child: Autocomplete<MapEntry<String, String>>(
-                    key: const ValueKey('destination-autocomplete'),
-                    initialValue: TextEditingValue(text: stations[selectedDestination] ?? ''),
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text == '') {
-                        return stations.entries;
-                      }
-                      return stations.entries.where((entry) =>
-                        entry.value.toLowerCase().contains(textEditingValue.text.toLowerCase())
-                      );
-                    },
-                    displayStringForOption: (option) => option.value,
-                    onSelected: (option) {
-                      setState(() {
-                        selectedDestination = option.key;
-                        futureSchedule = fetchSchedule();
-                      });
-                    },
-                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                      _destinationController = controller;
-                      return TextField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          hintText: t(lang, 'searchStation'),
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.search),
-                        ),
-                        onEditingComplete: onEditingComplete,
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -448,7 +490,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: \\${snapshot.error}'));
+                        return Center(child: Text('Error: ${snapshot.error}'));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Center(child: Text(t(lang, 'noTrains')));
                       } else {
@@ -480,9 +522,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Text('${t(lang, 'duration')}: ${train.duration}', style: theme.textTheme.bodySmall),
-                                                Text('${t(lang, 'train')}: ${train.trainCode}', style: theme.textTheme.bodySmall),
+
                                               ],
                                             ),
                                           ),
@@ -617,6 +657,38 @@ class TrainScheduleListItem extends StatelessWidget {
       subtitle: train.accessible
           ? Row(children: [Icon(Icons.accessible, color: Colors.green), SizedBox(width: 4), Text(t(lang, 'accessible'))])
           : null,
+    );
+  }
+}
+
+class _StationPickerDialog extends StatelessWidget {
+  final Map<String, String> stations;
+  final String selected;
+  final String title;
+
+  const _StationPickerDialog({
+    required this.stations,
+    required this.selected,
+    required this.title,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: stations.entries.map((entry) {
+            return ListTile(
+              title: Text(entry.value),
+              selected: entry.key == selected,
+              onTap: () => Navigator.of(context).pop(entry),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
