@@ -21,7 +21,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   String selectedDestination = '60911';
   String defaultOrigin = '60913';
   String defaultDestination = '60911';
-  String selectedDay = 'today';
+  String selectedDay = DateFormat('yyyy-MM-dd').format(DateTime.now());
   late Future<List<TrainSchedule>> futureSchedule;
   bool showPastTrains = false;
   late TextEditingController _originController;
@@ -157,8 +157,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Future<List<TrainSchedule>> fetchSchedule() async {
-    final now = DateTime.now();
-    final date = selectedDay == 'today' ? now : now.add(const Duration(days: 1));
+    DateTime date;
+    try {
+      date = DateFormat('yyyy-MM-dd').parse(selectedDay);
+    } catch (_) {
+      date = DateTime.now();
+    }
     final formattedDate = DateFormat('yyyyMMdd').format(date);
     final url = Uri.parse('https://horarios.renfe.com/cer/HorariosServlet');
     final body = jsonEncode({
@@ -183,7 +187,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       final List<dynamic> horarios = data['horario'] ?? [];
       final List<TrainSchedule> allTrains = horarios.map((h) => TrainSchedule.fromJson(h)).toList();
       if (!showPastTrains) {
-        final nowTime = DateFormat('HH:mm').format(now);
+        final nowTime = DateFormat('HH:mm').format(DateTime.now());
         // Only show trains with departureTime >= nowTime
         return allTrains.where((t) {
           try {
@@ -402,46 +406,39 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ChoiceChip(
-                        label: Text(t(lang, 'today')),
-                        selected: selectedDay == 'today',
-                        onSelected: (selected) {
-                          if (selected && selectedDay != 'today') {
-                            setState(() {
-                              selectedDay = 'today';
-                              futureSchedule = fetchSchedule();
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      ChoiceChip(
-                        label: Text(t(lang, 'tomorrow')),
-                        selected: selectedDay == 'tomorrow',
-                        onSelected: (selected) {
-                          if (selected && selectedDay != 'tomorrow') {
-                            setState(() {
-                              selectedDay = 'tomorrow';
-                              futureSchedule = fetchSchedule();
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      Switch(
-                        value: showPastTrains,
-                        onChanged: (value) {
-                          setState(() {
-                            showPastTrains = value;
-                            futureSchedule = fetchSchedule();
-                          });
-                        },
-                      ),
-                      Text(t(lang, 'showPast')),
-                    ],
+                    children: List.generate(7, (index) {
+                      final date = DateTime.now().add(Duration(days: index));
+                      final formatted = '${date.day} ${DateFormat('MMMM', lang).format(date)}';
+                      final isSelected = selectedDay == DateFormat('yyyy-MM-dd').format(date);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ChoiceChip(
+                          label: Text(formatted),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected && !isSelected) {
+                              setState(() {
+                                selectedDay = DateFormat('yyyy-MM-dd').format(date);
+                                futureSchedule = fetchSchedule();
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    }),
                   ),
                 ),
+                const SizedBox(height: 4),
+                Switch(
+                  value: showPastTrains,
+                  onChanged: (value) {
+                    setState(() {
+                      showPastTrains = value;
+                      futureSchedule = fetchSchedule();
+                    });
+                  },
+                ),
+                Text(t(lang, 'showPast')),
                 const SizedBox(height: 4),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
