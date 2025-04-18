@@ -461,9 +461,51 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           separatorBuilder: (context, index) => const Divider(),
                           itemBuilder: (context, index) {
                             final train = schedules[index];
-                            return TrainScheduleListItem(
-                              train: train,
-                              lang: lang,
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Icon(Icons.train),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${t(lang, 'origin')}: ${train.departureTime}  →  ${t(lang, 'destination')}: ${train.arrivalTime}',
+                                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text('${t(lang, 'duration')}: ${train.duration}', style: theme.textTheme.bodySmall),
+                                                Text('${t(lang, 'train')}: ${train.trainCode}', style: theme.textTheme.bodySmall),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Wrap(
+                                        spacing: 6,
+                                        runSpacing: 4,
+                                        children: [
+                                          if (train.accessible) Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
+                                          // if (train.isExpress) Chip(label: Text(t(lang, 'express')), avatar: const Icon(Icons.flash_on, size: 16)),
+                                          // if (train.isRegional) Chip(label: Text(t(lang, 'regional')), avatar: const Icon(Icons.directions_railway, size: 16)),
+                                          // Add more chips as needed for other train properties
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             );
                           },
                         );
