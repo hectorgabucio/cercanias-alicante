@@ -318,13 +318,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Modern station selector UI with floating swap button ---
-                SizedBox(
-                  height: 170, // Increased to prevent overflow
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Column(
+                // --- Full width dropdowns with swap button on the right ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
@@ -334,7 +333,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 builder: (context) => _StationPickerDialog(
                                   stations: stations,
                                   selected: selectedOrigin,
-                                  title: t(lang, 'fromStation'),
+                                  title: 'From',
                                 ),
                               );
                               if (result != null) {
@@ -358,6 +357,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   ),
                                 ],
                               ),
+                              width: double.infinity,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -378,7 +378,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 builder: (context) => _StationPickerDialog(
                                   stations: stations,
                                   selected: selectedDestination,
-                                  title: t(lang, 'toStation'),
+                                  title: 'To',
                                 ),
                               );
                               if (result != null) {
@@ -401,6 +401,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   ),
                                 ],
                               ),
+                              width: double.infinity,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -416,10 +417,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                         ],
                       ),
-                      // Floating swap button
-                      Positioned(
-                        right: 10,
-                        child: Material(
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Material(
                           color: Colors.blue,
                           shape: const CircleBorder(),
                           elevation: 6,
@@ -439,9 +442,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 SingleChildScrollView(
