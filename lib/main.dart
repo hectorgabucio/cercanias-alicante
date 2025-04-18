@@ -342,38 +342,27 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 8,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Text(
-            t('appTitle'),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.black87,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
+        backgroundColor: Colors.white,
+        elevation: 2,
+        titleSpacing: 0,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.black87),
             onPressed: () => Scaffold.of(context).openDrawer(),
+            tooltip: 'Open navigation menu',
           ),
         ),
+        title: Text(
+          t('appTitle'),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.black87,
+            letterSpacing: 0.5,
+          ),
+        ),
+        actions: const [],
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       drawer: Drawer(
         child: ListView(
