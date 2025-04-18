@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'dart:ui' as ui;
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const CercaniasScheduleApp());
@@ -47,6 +49,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'past': 'Pasado',
       'duration': 'Duración',
       'train': 'Tren',
+      'settings': 'Ajustes',
+      'language': 'Idioma',
+      'save': 'Guardar',
+      'defaultOrigin': 'Origen por defecto',
+      'defaultDestination': 'Destino por defecto',
+      'selectLanguage': 'Selecciona idioma',
+      'spanish': 'Español',
+      'english': 'Inglés',
     },
     'en': {
       'appTitle': 'Cercanías Alicante Murcia',
@@ -62,11 +72,86 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'past': 'Past',
       'duration': 'Duration',
       'train': 'Train',
+      'settings': 'Settings',
+      'language': 'Language',
+      'save': 'Save',
+      'defaultOrigin': 'Default origin',
+      'defaultDestination': 'Default destination',
+      'selectLanguage': 'Select language',
+      'spanish': 'Spanish',
+      'english': 'English',
     }
   };
 
-  String lang = 'es'; // Default to Spanish
+  // Detect system language on startup
+  late String lang;
   String t(String key) => translations[lang]![key] ?? key;
+
+  // App-wide settings
+  String selectedOrigin = '60913'; // Sant Vicent Centre
+  String selectedDestination = '60911'; // Alacant Terminal
+  String defaultOrigin = '60913';
+  String defaultDestination = '60911';
+  String selectedDay = 'today';
+  late Future<List<TrainSchedule>> futureSchedule;
+  bool showPastTrains = false;
+
+  Future<void> loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLang = prefs.getString('lang');
+    final savedOrigin = prefs.getString('defaultOrigin');
+    final savedDestination = prefs.getString('defaultDestination');
+    setState(() {
+      if (savedLang != null && translations.containsKey(savedLang)) lang = savedLang;
+      if (savedOrigin != null && stations.containsKey(savedOrigin)) defaultOrigin = savedOrigin;
+      if (savedDestination != null && stations.containsKey(savedDestination)) defaultDestination = savedDestination;
+      selectedOrigin = defaultOrigin;
+      selectedDestination = defaultDestination;
+      futureSchedule = fetchSchedule();
+    });
+  }
+
+  Future<void> saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lang', lang);
+    await prefs.setString('defaultOrigin', defaultOrigin);
+    await prefs.setString('defaultDestination', defaultDestination);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final systemLang = ui.window.locale.languageCode;
+    lang = translations.containsKey(systemLang) ? systemLang : 'es';
+    selectedOrigin = defaultOrigin;
+    selectedDestination = defaultDestination;
+    futureSchedule = fetchSchedule();
+    loadSettings();
+  }
+
+  void openSettings() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsPage(
+          lang: lang,
+          defaultOrigin: defaultOrigin,
+          defaultDestination: defaultDestination,
+        ),
+      ),
+    );
+    if (result != null && result is Map) {
+      setState(() {
+        lang = result['lang'] ?? lang;
+        defaultOrigin = result['defaultOrigin'] ?? defaultOrigin;
+        defaultDestination = result['defaultDestination'] ?? defaultDestination;
+        selectedOrigin = defaultOrigin;
+        selectedDestination = defaultDestination;
+        futureSchedule = fetchSchedule();
+      });
+      await saveSettings();
+    }
+  }
 
   // Add station codes and names
   static const Map<String, String> stations = {
@@ -132,13 +217,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "62104": Icons.train,
     "06003": Icons.train,
   };
-
-  // Add state for selected origin and destination
-  String selectedOrigin = '60913'; // Default: Sant Vicent Centre
-  String selectedDestination = '60911'; // Default: Alacant Terminal
-  String selectedDay = 'today'; // 'today' or 'tomorrow'
-  late Future<List<TrainSchedule>> futureSchedule;
-  bool showPastTrains = false;
 
   // Helper for modal bottom sheet station picker
   Future<void> _pickStation({
@@ -226,12 +304,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    futureSchedule = fetchSchedule();
-  }
-
   // Update fetchSchedule to use selected origin and destination
   Future<List<TrainSchedule>> fetchSchedule() async {
     final now = DateTime.now();
@@ -295,6 +367,42 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               letterSpacing: 0.5,
             ),
           ),
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black87),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF5B86E5),
+              ),
+              child: Center(
+                child: Text(
+                  t('settings'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: Text(t('settings')),
+              onTap: () {
+                Navigator.pop(context);
+                openSettings();
+              },
+            ),
+          ],
         ),
       ),
       body: Container(
@@ -598,6 +706,104 @@ class TrainSchedule {
       arrivalTime: json['horaLlegada'] ?? '',
       duration: json['duracion'] ?? '',
       accessible: json['accesible'] ?? false,
+    );
+  }
+}
+
+// SETTINGS PAGE
+class SettingsPage extends StatefulWidget {
+  final String lang;
+  final String defaultOrigin;
+  final String defaultDestination;
+  const SettingsPage({super.key, required this.lang, required this.defaultOrigin, required this.defaultDestination});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late String lang;
+  late String defaultOrigin;
+  late String defaultDestination;
+
+  @override
+  void initState() {
+    super.initState();
+    lang = widget.lang;
+    defaultOrigin = widget.defaultOrigin;
+    defaultDestination = widget.defaultDestination;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final translations = _ScheduleScreenState.translations;
+    String t(String key) => translations[lang]![key] ?? key;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: Text(t('settings'), style: const TextStyle(color: Colors.black)),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t('language'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: lang,
+              items: [
+                DropdownMenuItem(value: 'es', child: Text(t('spanish'))),
+                DropdownMenuItem(value: 'en', child: Text(t('english'))),
+              ],
+              onChanged: (value) => setState(() => lang = value!),
+            ),
+            const SizedBox(height: 24),
+            Text(t('defaultOrigin'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: defaultOrigin,
+              items: _ScheduleScreenState.stations.entries.map((entry) {
+                return DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() => defaultOrigin = value!),
+            ),
+            const SizedBox(height: 24),
+            Text(t('defaultDestination'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              value: defaultDestination,
+              items: _ScheduleScreenState.stations.entries.map((entry) {
+                return DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() => defaultDestination = value!),
+            ),
+            const Spacer(),
+            Center(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: Text(t('save')),
+                onPressed: () {
+                  Navigator.pop(context, {
+                    'lang': lang,
+                    'defaultOrigin': defaultOrigin,
+                    'defaultDestination': defaultDestination,
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

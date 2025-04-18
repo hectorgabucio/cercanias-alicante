@@ -6,10 +6,9 @@ plugins {
 }
 
 android {
+    ndkVersion = "27.0.12077973"
     namespace = "com.example.cercanias_schedule"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
