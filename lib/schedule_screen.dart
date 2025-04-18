@@ -496,9 +496,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         spacing: 6,
                                         runSpacing: 4,
                                         children: [
-                                          if (train.accessible) Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
-                                          // if (train.isExpress) Chip(label: Text(t(lang, 'express')), avatar: const Icon(Icons.flash_on, size: 16)),
-                                          // if (train.isRegional) Chip(label: Text(t(lang, 'regional')), avatar: const Icon(Icons.directions_railway, size: 16)),
+                                          Chip(
+                                            label: Text('${t(lang, 'duration')}: ${train.duration}'),
+                                            backgroundColor: Colors.blue.shade50,
+                                          ),
+                                          Chip(
+                                            label: Text('${t(lang, 'train')}: ${train.trainCode}'),
+                                            backgroundColor: Colors.green.shade50,
+                                          ),
+                                          if (train.accessible)
+                                            Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
                                           // Add more chips as needed for other train properties
                                         ],
                                       ),
