@@ -25,6 +25,28 @@ class _MyBonoPageState extends State<MyBonoPage> {
   bool _cameraMode = false;
   MobileScannerController? _scannerController;
 
+  // Helper: parse and validate QR
+  Map<String, dynamic>? parseBonoQR(String? data) {
+    if (data == null) return null;
+    final regex = RegExp(r'^(\w+)(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)([a-fA-F0-9]+)$');
+    final match = regex.firstMatch(data);
+    if (match == null) return null;
+    final code = match.group(1)!;
+    final dateStr = match.group(2)!;
+    final hash = match.group(3)!;
+    DateTime? validUntil;
+    try {
+      validUntil = DateTime.parse(dateStr);
+    } catch (_) {
+      return null;
+    }
+    return {
+      'code': code,
+      'validUntil': validUntil,
+      'hash': hash,
+    };
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +61,8 @@ class _MyBonoPageState extends State<MyBonoPage> {
   }
 
   Future<void> _saveQR(String data) async {
+    // Log the content of the scanned QR
+    print('[MyBono] Scanned QR content: $data');
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('my_bono_qr', data);
     setState(() {
@@ -171,15 +195,15 @@ class _MyBonoPageState extends State<MyBonoPage> {
                       ? const CircularProgressIndicator()
                       : qrData != null
                           ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                const SizedBox(height: 32),
                                 QrImageView(
                                   data: qrData!,
                                   version: QrVersions.auto,
                                   size: 240.0,
                                 ),
-                                const SizedBox(height: 24),
-                                Text(qrData!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: Colors.black54)),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.delete_outline),
@@ -218,6 +242,36 @@ class _MyBonoPageState extends State<MyBonoPage> {
                                   'No bono QR added yet',
                                   style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
                                   textAlign: TextAlign.center,
+                                ),
+                                Builder(
+                                  builder: (context) {
+                                    final parsed = parseBonoQR(qrData);
+                                    if (qrData == null) {
+                                      return const SizedBox();
+                                    } else if (parsed == null) {
+                                      return const Text(
+                                        'This is not a valid bono',
+                                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      );
+                                    } else {
+                                      final code = parsed['code'] as String;
+                                      final validUntil = parsed['validUntil'] as DateTime;
+                                      final now = DateTime.now();
+                                      final expired = now.isAfter(validUntil);
+                                      return Column(
+                                        children: [
+                                          Text('Code: $code', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                          const SizedBox(height: 8),
+                                          Text('Valid until: '
+                                            '${validUntil.toLocal()}'.split('.')[0],
+                                            style: TextStyle(fontSize: 16, color: expired ? Colors.red : Colors.green, fontWeight: FontWeight.w500)),
+                                          if (expired)
+                                            const Text('Expired', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                        ],
+                                      );
+                                    }
+                                  },
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
