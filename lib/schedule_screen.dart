@@ -3,16 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'localization.dart';
 import 'models/train_schedule.dart';
 import 'settings_page.dart';
-import 'dart:ui' as ui;
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'my_bono_page.dart';
+import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
+import 'my_bono_page.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});

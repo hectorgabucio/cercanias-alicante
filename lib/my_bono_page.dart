@@ -104,10 +104,9 @@ class _MyBonoPageState extends State<MyBonoPage> {
           setState(() { error = 'No QR code found in image.'; });
           // print('[MyBono] No QR code found in image.');
         }
-      } catch (e, stack) {
+      } catch (e) {
         setState(() { error = 'Error scanning image: ${e.toString()}'; });
         // print('[MyBono] Error scanning image: ${e.toString()}');
-        // print(stack);
       }
       setState(() { loading = false; });
     }
@@ -232,7 +231,7 @@ class _MyBonoPageState extends State<MyBonoPage> {
                                 const SizedBox(height: 16),
                                 const Text(
                                   'No bono QR added yet',
-                                  style: const TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
+                                  style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 24),
