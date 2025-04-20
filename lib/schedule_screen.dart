@@ -729,16 +729,28 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   const SizedBox(height: 24),
                   buildDatePicker(context),
                   const SizedBox(height: 12),
-                  Switch(
-                    value: showPastTrains,
-                    onChanged: (value) {
-                      setState(() {
-                        showPastTrains = value;
-                        futureSchedule = fetchSchedule();
-                      });
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Switch(
+                        value: showPastTrains,
+                        onChanged: (value) {
+                          setState(() {
+                            showPastTrains = value;
+                            futureSchedule = fetchSchedule();
+                          });
+                        },
+                        activeColor: const Color(0xFF4EC7B3), // Accent color
+                        inactiveTrackColor: Colors.grey.shade300,
+                        inactiveThumbColor: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        t(lang, 'showPast'),
+                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black87),
+                      ),
+                    ],
                   ),
-                  Text(t(lang, 'showPast')),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.5,
                     child: FutureBuilder<List<TrainSchedule>>(
