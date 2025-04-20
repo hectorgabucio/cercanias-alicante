@@ -569,7 +569,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             style: theme.textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
-                              fontSize: 22,
+                              fontSize: 18, // Decreased font size
                             ),
                           ),
                         ],
