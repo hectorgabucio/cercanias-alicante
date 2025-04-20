@@ -145,7 +145,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   void openSettings() async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SettingsPage(
@@ -155,17 +155,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         ),
       ),
     );
-    if (result != null && result is Map) {
-      setState(() {
-        lang = result['lang'] ?? lang;
-        defaultOrigin = result['defaultOrigin'] ?? defaultOrigin;
-        defaultDestination = result['defaultDestination'] ?? defaultDestination;
-        selectedOrigin = defaultOrigin;
-        selectedDestination = defaultDestination;
-        futureSchedule = fetchSchedule();
-      });
-      await saveSettings();
-    }
+    await loadSettings();
   }
 
   Future<List<TrainSchedule>> fetchSchedule() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   final String lang;
@@ -24,6 +25,13 @@ class _SettingsPageState extends State<SettingsPage> {
     defaultDestination = widget.defaultDestination;
   }
 
+  Future<void> saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lang', lang);
+    await prefs.setString('defaultOrigin', defaultOrigin);
+    await prefs.setString('defaultDestination', defaultDestination);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,11 +54,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 DropdownMenuItem(value: 'es', child: Text(t(lang, 'spanish'))),
                 DropdownMenuItem(value: 'en', child: Text(t(lang, 'english'))),
               ],
-              onChanged: (value) {
+              onChanged: (value) async {
                 if (value != null) {
                   setState(() {
                     lang = value;
                   });
+                  await saveSettings();
                 }
               },
             ),
@@ -64,11 +73,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 DropdownMenuItem(value: '60911', child: Text('Alacant Terminal')),
                 // Add more stations as needed
               ],
-              onChanged: (value) {
+              onChanged: (value) async {
                 if (value != null) {
                   setState(() {
                     defaultOrigin = value;
                   });
+                  await saveSettings();
                 }
               },
             ),
@@ -82,27 +92,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 DropdownMenuItem(value: '60911', child: Text('Alacant Terminal')),
                 // Add more stations as needed
               ],
-              onChanged: (value) {
+              onChanged: (value) async {
                 if (value != null) {
                   setState(() {
                     defaultDestination = value;
                   });
+                  await saveSettings();
                 }
               },
-            ),
-            const Spacer(),
-            Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: Text(t(lang, 'save')),
-                onPressed: () {
-                  Navigator.pop(context, {
-                    'lang': lang,
-                    'defaultOrigin': defaultOrigin,
-                    'defaultDestination': defaultDestination,
-                  });
-                },
-              ),
             ),
           ],
         ),
