@@ -8,6 +8,7 @@ import 'dart:typed_data';
 import 'package:zxing2/qrcode.dart';
 import 'package:image/image.dart' as img;
 import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class MyBonoPage extends StatefulWidget {
   const MyBonoPage({super.key});
@@ -193,19 +194,26 @@ class _MyBonoPageState extends State<MyBonoPage> {
                               ],
                             )
                           : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                // Skeleton for empty QR
-                                Container(
-                                  width: 180,
-                                  height: 180,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(16),
+                                const SizedBox(height: 32),
+                                Center(
+                                  child: Container(
+                                    width: 220,
+                                    height: 220,
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    child: SvgPicture.asset(
+                                      'assets/qr_placeholder.svg',
+                                      width: 180,
+                                      height: 180,
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
-                                  child: const Icon(Icons.qr_code_2, size: 90, color: Colors.grey),
                                 ),
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 16),
                                 const Text(
                                   'No bono QR added yet',
                                   style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
