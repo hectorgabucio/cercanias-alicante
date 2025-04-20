@@ -18,10 +18,11 @@ dependencies:
   lottie: ^2.7.0
   shimmer: ^3.0.0
   flutter_svg: ^2.0.10
+  screenshot: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
 flutter_icons:
   android: true
   ios: false

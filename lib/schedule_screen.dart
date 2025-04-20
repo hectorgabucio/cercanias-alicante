@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'my_bono_page.dart';
+import 'package:screenshot/screenshot.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -108,6 +109,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     // Add more as desired, fallback handled below
   };
 
+  final ScreenshotController _screenshotController = ScreenshotController();
   final GlobalKey _shareKey = GlobalKey();
 
   @override
@@ -536,314 +538,310 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF6F8FC), Color(0xFFE9F0FB)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Screenshot(
+      controller: _screenshotController,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFF6F8FC), Color(0xFFE9F0FB)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Top Row with Destination Station
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            stationEmojis[selectedDestination] ?? "🚆",
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            stations[selectedDestination] ?? '',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              fontSize: 18, // Decreased font size
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top Row with Destination Station
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              stationEmojis[selectedDestination] ?? "🚆",
+                              style: const TextStyle(fontSize: 28),
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: IconButton(
-                              icon: const Icon(Icons.share, color: Colors.black87),
-                              onPressed: () async {
-                                try {
-                                  RenderRepaintBoundary boundary = _shareKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-                                  ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-                                  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-                                  if (byteData != null) {
-                                    Uint8List pngBytes = byteData.buffer.asUint8List();
-                                    final tempDir = await getTemporaryDirectory();
-                                    final file = await File('${tempDir.path}/schedule_share.png').create();
-                                    await file.writeAsBytes(pngBytes);
-                                    await Share.shareXFiles([XFile(file.path)], text: 'Train schedule from ${stations[selectedOrigin]} to ${stations[selectedDestination]}');
-                                  }
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error sharing screenshot: ' + e.toString())),
+                            const SizedBox(width: 10),
+                            Text(
+                              stations[selectedDestination] ?? '',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                fontSize: 18, // Decreased font size
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: IconButton(
+                                icon: const Icon(Icons.share, color: Colors.black87),
+                                onPressed: _shareScreenshot,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: IconButton(
+                                icon: const Icon(Icons.qr_code, color: Color(0xFF4EC7B3)),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const MyBonoPage()),
                                   );
-                                }
-                              },
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: IconButton(
-                              icon: const Icon(Icons.qr_code, color: Color(0xFF4EC7B3)),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const MyBonoPage()),
-                                );
-                              },
+                            const SizedBox(width: 12),
+                            CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: IconButton(
+                                icon: const Icon(Icons.more_horiz, color: Colors.black87),
+                                onPressed: openSettings,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: IconButton(
-                              icon: const Icon(Icons.more_horiz, color: Colors.black87),
-                              onPressed: openSettings,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Station pickers styled as pills with swap
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          // From
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                final result = await showDialog<MapEntry<String, String>>(
-                                  context: context,
-                                  builder: (context) => _StationPickerDialog(
-                                    stations: stations,
-                                    selected: selectedOrigin,
-                                    title: t(lang, 'from'),
-                                  ),
-                                );
-                                if (result != null) {
-                                  setState(() {
-                                    selectedOrigin = result.key;
-                                    futureSchedule = fetchSchedule();
-                                  });
-                                }
-                              },
-                              child: Container(
-                                height: 72,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE3E7F1),
-                                  borderRadius: BorderRadius.circular(32),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.location_on, size: 18, color: Color(0xFF8D7CF6)),
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      fit: FlexFit.loose,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(t(lang, 'from'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-                                          const SizedBox(height: 1),
-                                          Text(
-                                            stations[selectedOrigin] ?? '',
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            softWrap: true,
-                                          ),
-                                        ],
-                                      ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Station pickers styled as pills with swap
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            // From
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final result = await showDialog<MapEntry<String, String>>(
+                                    context: context,
+                                    builder: (context) => _StationPickerDialog(
+                                      stations: stations,
+                                      selected: selectedOrigin,
+                                      title: t(lang, 'from'),
                                     ),
-                                  ],
+                                  );
+                                  if (result != null) {
+                                    setState(() {
+                                      selectedOrigin = result.key;
+                                      futureSchedule = fetchSchedule();
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  height: 72,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE3E7F1),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.location_on, size: 18, color: Color(0xFF8D7CF6)),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        fit: FlexFit.loose,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(t(lang, 'from'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                            const SizedBox(height: 1),
+                                            Text(
+                                              stations[selectedOrigin] ?? '',
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              softWrap: true,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          // To
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                final result = await showDialog<MapEntry<String, String>>(
-                                  context: context,
-                                  builder: (context) => _StationPickerDialog(
-                                    stations: stations,
-                                    selected: selectedDestination,
-                                    title: t(lang, 'to'),
-                                  ),
-                                );
-                                if (result != null) {
-                                  setState(() {
-                                    selectedDestination = result.key;
-                                    futureSchedule = fetchSchedule();
-                                  });
-                                }
-                              },
-                              child: Container(
-                                height: 72,
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFD3F4EF),
-                                  borderRadius: BorderRadius.circular(32),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.location_on, size: 18, color: Color(0xFF4EC7B3)),
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      fit: FlexFit.loose,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(t(lang, 'to'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-                                          const SizedBox(height: 1),
-                                          Text(
-                                            stations[selectedDestination] ?? '',
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            softWrap: true,
-                                          ),
-                                        ],
-                                      ),
+                            const SizedBox(width: 16),
+                            // To
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final result = await showDialog<MapEntry<String, String>>(
+                                    context: context,
+                                    builder: (context) => _StationPickerDialog(
+                                      stations: stations,
+                                      selected: selectedDestination,
+                                      title: t(lang, 'to'),
                                     ),
-                                  ],
+                                  );
+                                  if (result != null) {
+                                    setState(() {
+                                      selectedDestination = result.key;
+                                      futureSchedule = fetchSchedule();
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  height: 72,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFD3F4EF),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.location_on, size: 18, color: Color(0xFF4EC7B3)),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        fit: FlexFit.loose,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(t(lang, 'to'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                            const SizedBox(height: 1),
+                                            Text(
+                                              stations[selectedDestination] ?? '',
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              softWrap: true,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      // Floating swap button
-                      Positioned(
-                        left: null,
-                        right: null,
-                        child: Material(
-                          color: const Color(0xFF8D7CF6),
-                          shape: const CircleBorder(),
-                          elevation: 3,
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            onTap: () {
-                              setState(() {
-                                final temp = selectedOrigin;
-                                selectedOrigin = selectedDestination;
-                                selectedDestination = temp;
-                                futureSchedule = fetchSchedule();
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(10),
-                              child: Icon(Icons.swap_horiz, color: Colors.white, size: 22),
+                          ],
+                        ),
+                        // Floating swap button
+                        Positioned(
+                          left: null,
+                          right: null,
+                          child: Material(
+                            color: const Color(0xFF8D7CF6),
+                            shape: const CircleBorder(),
+                            elevation: 3,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: () {
+                                setState(() {
+                                  final temp = selectedOrigin;
+                                  selectedOrigin = selectedDestination;
+                                  selectedDestination = temp;
+                                  futureSchedule = fetchSchedule();
+                                });
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Icon(Icons.swap_horiz, color: Colors.white, size: 22),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  buildDatePicker(context),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Switch(
-                        value: showPastTrains,
-                        onChanged: (value) {
-                          setState(() {
-                            showPastTrains = value;
-                            futureSchedule = fetchSchedule();
-                          });
-                        },
-                        activeColor: const Color(0xFF4EC7B3), // Accent color
-                        inactiveTrackColor: Colors.grey.shade300,
-                        inactiveThumbColor: Colors.white,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        t(lang, 'showPast'),
-                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black87),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.5,
-                    child: RepaintBoundary(
-                      key: _shareKey,
-                      child: FutureBuilder<List<TrainSchedule>>(
-                        future: futureSchedule,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return ListView.builder(
-                              itemCount: 3,
-                              itemBuilder: (context, index) => buildScheduleSkeleton(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                t(lang, 'noResults'),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16, color: Colors.black54),
-                              ),
-                            );
-                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return Center(
-                              child: Text(
-                                t(lang, 'noResults'),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 16, color: Colors.black54),
-                              ),
-                            );
-                          } else {
-                            final schedules = snapshot.data!;
-                            return ListView.builder(
-                              itemCount: schedules.length,
-                              itemBuilder: (context, index) {
-                                final train = schedules[index];
-                                return buildScheduleCard(train, theme, lang);
-                              },
-                            );
-                          }
-                        },
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    buildDatePicker(context),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Switch(
+                          value: showPastTrains,
+                          onChanged: (value) {
+                            setState(() {
+                              showPastTrains = value;
+                              futureSchedule = fetchSchedule();
+                            });
+                          },
+                          activeColor: const Color(0xFF4EC7B3), // Accent color
+                          inactiveTrackColor: Colors.grey.shade300,
+                          inactiveThumbColor: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          t(lang, 'showPast'),
+                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.black87),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: RepaintBoundary(
+                        key: _shareKey,
+                        child: FutureBuilder<List<TrainSchedule>>(
+                          future: futureSchedule,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return ListView.builder(
+                                itemCount: 3,
+                                itemBuilder: (context, index) => buildScheduleSkeleton(),
+                              );
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  t(lang, 'noResults'),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                                ),
+                              );
+                            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  t(lang, 'noResults'),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                                ),
+                              );
+                            } else {
+                              final schedules = snapshot.data!;
+                              return ListView.builder(
+                                itemCount: schedules.length,
+                                itemBuilder: (context, index) {
+                                  final train = schedules[index];
+                                  return buildScheduleCard(train, theme, lang);
+                                },
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _shareScreenshot() async {
+    final image = await _screenshotController.capture();
+    if (image != null) {
+      final directory = await getTemporaryDirectory();
+      final imagePath = await File('${directory.path}/screenshot.png').create();
+      await imagePath.writeAsBytes(image);
+      await Share.shareXFiles([XFile(imagePath.path)], text: 'Check out my schedule!');
+    }
   }
 }
 
