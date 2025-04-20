@@ -281,144 +281,116 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
-        titleSpacing: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.person, color: Colors.black87),
-          onPressed: openSettings,
-          tooltip: 'Profile / Settings',
-        ),
-        title: const Text(
-          'Hello!',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.black87,
-            letterSpacing: 0.5,
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF6F8FC), Color(0xFFE9F0FB)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        actions: const [],
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
-      drawer: null,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- Full width dropdowns with swap button on the right ---
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top Row with Back and Actions
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Back button
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                          onPressed: () => Navigator.of(context).maybePop(),
+                        ),
+                      ),
+                      Row(
                         children: [
-                          GestureDetector(
-                            onTap: () async {
-                              final result = await showDialog<MapEntry<String, String>>(
-                                context: context,
-                                builder: (context) => _StationPickerDialog(
-                                  stations: stations,
-                                  selected: selectedOrigin,
-                                  title: 'From',
-                                ),
-                              );
-                              if (result != null) {
-                                setState(() {
-                                  selectedOrigin = result.key;
-                                  futureSchedule = fetchSchedule();
-                                });
-                              }
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              width: double.infinity,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    stations[selectedOrigin] ?? '',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                  ),
-                                ],
-                              ),
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: IconButton(
+                              icon: const Icon(Icons.share, color: Colors.black87),
+                              onPressed: () {}, // TODO: Implement share
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () async {
-                              final result = await showDialog<MapEntry<String, String>>(
-                                context: context,
-                                builder: (context) => _StationPickerDialog(
-                                  stations: stations,
-                                  selected: selectedDestination,
-                                  title: 'To',
-                                ),
-                              );
-                              if (result != null) {
-                                setState(() {
-                                  selectedDestination = result.key;
-                                  futureSchedule = fetchSchedule();
-                                });
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              width: double.infinity,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    stations[selectedDestination] ?? '',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                  ),
-                                ],
-                              ),
+                          const SizedBox(width: 12),
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: IconButton(
+                              icon: const Icon(Icons.more_horiz, color: Colors.black87),
+                              onPressed: openSettings,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Material(
-                          color: Colors.blue,
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 24),
+                  // Station pickers styled as pills with swap
+                  Row(
+                    children: [
+                      // From
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final result = await showDialog<MapEntry<String, String>>(
+                              context: context,
+                              builder: (context) => _StationPickerDialog(
+                                stations: stations,
+                                selected: selectedOrigin,
+                                title: 'From',
+                              ),
+                            );
+                            if (result != null) {
+                              setState(() {
+                                selectedOrigin = result.key;
+                                futureSchedule = fetchSchedule();
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE3E7F1),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.location_on, size: 20, color: Color(0xFF8D7CF6)),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      stations[selectedOrigin] ?? '',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Swap button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Material(
+                          color: const Color(0xFF8D7CF6),
                           shape: const CircleBorder(),
-                          elevation: 6,
+                          elevation: 2,
                           child: InkWell(
                             customBorder: const CircleBorder(),
                             onTap: () {
@@ -431,128 +403,175 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(10),
-                              child: Icon(Icons.swap_vert, color: Colors.white, size: 28),
+                              child: Icon(Icons.swap_horiz, color: Colors.white, size: 28),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(7, (index) {
-                      final date = DateTime.now().add(Duration(days: index));
-                      final formatted = '${date.day} ${DateFormat('MMMM', lang).format(date)}';
-                      final isSelected = selectedDay == DateFormat('yyyy-MM-dd').format(date);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ChoiceChip(
-                          label: Text(formatted),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            if (selected && !isSelected) {
+                      ),
+                      // To
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final result = await showDialog<MapEntry<String, String>>(
+                              context: context,
+                              builder: (context) => _StationPickerDialog(
+                                stations: stations,
+                                selected: selectedDestination,
+                                title: 'To',
+                              ),
+                            );
+                            if (result != null) {
                               setState(() {
-                                selectedDay = DateFormat('yyyy-MM-dd').format(date);
+                                selectedDestination = result.key;
                                 futureSchedule = fetchSchedule();
                               });
                             }
                           },
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Switch(
-                  value: showPastTrains,
-                  onChanged: (value) {
-                    setState(() {
-                      showPastTrains = value;
-                      futureSchedule = fetchSchedule();
-                    });
-                  },
-                ),
-                Text(t(lang, 'showPast')),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: FutureBuilder<List<TrainSchedule>>(
-                    future: futureSchedule,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(child: Text(t(lang, 'noTrains')));
-                      } else {
-                        final schedules = snapshot.data!;
-                        return ListView.separated(
-                          itemCount: schedules.length,
-                          separatorBuilder: (context, index) => const Divider(),
-                          itemBuilder: (context, index) {
-                            final train = schedules[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Card(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Icon(Icons.train),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '${t(lang, 'origin')}: ${train.departureTime}  →  ${t(lang, 'destination')}: ${train.arrivalTime}',
-                                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Wrap(
-                                        spacing: 6,
-                                        runSpacing: 4,
-                                        children: [
-                                          Chip(
-                                            label: Text('${t(lang, 'duration')}: ${train.duration}'),
-                                            backgroundColor: Colors.blue.shade50,
-                                          ),
-                                          Chip(
-                                            label: Text('${t(lang, 'train')}: ${train.trainCode}'),
-                                            backgroundColor: Colors.green.shade50,
-                                          ),
-                                          if (train.accessible)
-                                            Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
-                                          // Add more chips as needed for other train properties
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD3F4EF),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.location_on, size: 20, color: Color(0xFF4EC7B3)),
+                                const SizedBox(width: 8),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      stations[selectedDestination] ?? '',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            );
-                          },
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // ... (rest of your widgets, e.g. date chips, results list)
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(7, (index) {
+                        final date = DateTime.now().add(Duration(days: index));
+                        final formatted = '${date.day} ${DateFormat('MMMM', lang).format(date)}';
+                        final isSelected = selectedDay == DateFormat('yyyy-MM-dd').format(date);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: ChoiceChip(
+                            label: Text(formatted),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              if (selected && !isSelected) {
+                                setState(() {
+                                  selectedDay = DateFormat('yyyy-MM-dd').format(date);
+                                  futureSchedule = fetchSchedule();
+                                });
+                              }
+                            },
+                          ),
                         );
-                      }
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Switch(
+                    value: showPastTrains,
+                    onChanged: (value) {
+                      setState(() {
+                        showPastTrains = value;
+                        futureSchedule = fetchSchedule();
+                      });
                     },
                   ),
-                ),
-              ],
+                  Text(t(lang, 'showPast')),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    child: FutureBuilder<List<TrainSchedule>>(
+                      future: futureSchedule,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return Center(child: Text(t(lang, 'noTrains')));
+                        } else {
+                          final schedules = snapshot.data!;
+                          return ListView.separated(
+                            itemCount: schedules.length,
+                            separatorBuilder: (context, index) => const Divider(),
+                            itemBuilder: (context, index) {
+                              final train = schedules[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Icon(Icons.train),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '${t(lang, 'origin')}: ${train.departureTime}  →  ${t(lang, 'destination')}: ${train.arrivalTime}',
+                                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 4,
+                                          children: [
+                                            Chip(
+                                              label: Text('${t(lang, 'duration')}: ${train.duration}'),
+                                              backgroundColor: Colors.blue.shade50,
+                                            ),
+                                            Chip(
+                                              label: Text('${t(lang, 'train')}: ${train.trainCode}'),
+                                              backgroundColor: Colors.green.shade50,
+                                            ),
+                                            if (train.accessible)
+                                              Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
+                                            // Add more chips as needed for other train properties
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
