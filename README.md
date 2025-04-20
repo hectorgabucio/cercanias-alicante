@@ -2,6 +2,11 @@
 
 A simple Flutter app to show the train schedule for Cercanías (Renfe) from San Vicente Centre to Alicante.
 
+<p align="center">
+  <img src=".github/assets/WhatsApp%20Image%202025-04-20%20at%2015.48.46.jpeg" alt="Cercanías Schedule Screenshot 1" width="350" />
+  <img src=".github/assets/WhatsApp%20Image%202025-04-20%20at%2015.48.46%20(1).jpeg" alt="Cercanías Schedule Screenshot 2" width="350" />
+</p>
+
 ## Features
 - Fetches schedule from the official Renfe API
 - Displays departure, arrival, duration, and train number
