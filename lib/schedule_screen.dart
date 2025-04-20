@@ -279,16 +279,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget buildScheduleCard(TrainSchedule train, ThemeData theme, String lang) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -300,35 +300,56 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             children: [
               const CircleAvatar(
                 backgroundColor: Color(0xFFF6F8FC),
-                child: Icon(Icons.train, color: Color(0xFF8D7CF6)),
-                radius: 18,
+                child: Icon(Icons.train, color: Color(0xFF8D7CF6), size: 18),
+                radius: 15,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   train.line.isNotEmpty ? train.line : t(lang, 'train'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
+                    fontSize: 15,
                   ),
                 ),
               ),
-              // Train code as a subtle tag
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE9F0FB),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   train.trainCode,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF8D7CF6), fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF8D7CF6), fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          // Middle Row: Stations, times, dashed route, duration
+          const SizedBox(height: 10),
+          // Duration centered above dashed line
+          Row(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8D7CF6).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      train.duration,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF8D7CF6), fontSize: 13),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          // Middle Row: Stations, times, dashed route
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -338,91 +359,55 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   Text(
                     train.departureTime,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     t(lang, 'origin'),
-                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
                   ),
                 ],
               ),
-              const SizedBox(width: 12),
-              // Route with dashed line and train icon
+              const SizedBox(width: 8),
               Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          // Custom dashed line
-                          return CustomPaint(
-                            size: Size(constraints.maxWidth, 2),
-                            painter: _DashedLinePainter(),
-                          );
-                        },
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Icon(Icons.train, size: 22, color: Color(0xFF8D7CF6)),
-                    ),
-                    Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return CustomPaint(
-                            size: Size(constraints.maxWidth, 2),
-                            painter: _DashedLinePainter(),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return CustomPaint(
+                      size: Size(constraints.maxWidth, 2),
+                      painter: _DashedLinePainter(),
+                    );
+                  },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               // Arrival
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     train.arrivalTime,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 1),
                   Text(
                     t(lang, 'destination'),
-                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          // Duration centered below route
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8D7CF6).withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                train.duration,
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF8D7CF6)),
-              ),
-            ),
-          ),
-          // Chips row (optional, e.g. accessibility)
           if (train.accessible)
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(top: 6),
               child: Row(
                 children: [
                   Chip(
-                    label: Text(t(lang, 'accessible')),
-                    avatar: const Icon(Icons.accessible, size: 16),
+                    label: Text(t(lang, 'accessible'), style: const TextStyle(fontSize: 12)),
+                    avatar: const Icon(Icons.accessible, size: 14),
                     backgroundColor: Colors.green.shade50,
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ],
               ),
@@ -670,12 +655,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         } else if (snapshot.hasError) {
                           return Center(child: Text('Error: ${snapshot.error}'));
                         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(child: Text(t(lang, 'noTrains')));
+                          return Center(child: Text(t(lang, 'noResults')));
                         } else {
                           final schedules = snapshot.data!;
-                          return ListView.separated(
+                          return ListView.builder(
                             itemCount: schedules.length,
-                            separatorBuilder: (context, index) => const Divider(),
                             itemBuilder: (context, index) {
                               final train = schedules[index];
                               return buildScheduleCard(train, theme, lang);
