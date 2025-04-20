@@ -26,6 +26,7 @@ const Map<String, Map<String, String>> translations = {
     'search': 'Buscar',
     'from': 'Desde',
     'to': 'Hasta',
+    'noResults': 'Lo siento, no se han encontrado resultados para esta búsqueda.',
   },
   'en': {
     'appTitle': 'Cercanías Alicante Murcia',
@@ -54,6 +55,7 @@ const Map<String, Map<String, String>> translations = {
     'search': 'Search',
     'from': 'From',
     'to': 'To',
+    'noResults': 'Sorry, no results found for this.',
   }
 };
 

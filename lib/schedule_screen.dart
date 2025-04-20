@@ -429,6 +429,34 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+  Widget buildScheduleSkeleton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(height: 18, width: 120, color: Colors.grey[350], margin: const EdgeInsets.only(bottom: 10)),
+          Row(
+            children: [
+              Container(height: 16, width: 48, color: Colors.grey[350]),
+              const SizedBox(width: 8),
+              Expanded(child: Container(height: 8, color: Colors.grey[350])),
+              const SizedBox(width: 8),
+              Container(height: 16, width: 48, color: Colors.grey[350]),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(height: 14, width: 80, color: Colors.grey[350]),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -681,11 +709,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       future: futureSchedule,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                          return ListView.builder(
+                            itemCount: 3,
+                            itemBuilder: (context, index) => buildScheduleSkeleton(),
+                          );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
+                          return Center(
+                            child: Text(
+                              t(lang, 'noResults'),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16, color: Colors.black54),
+                            ),
+                          );
                         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(child: Text(t(lang, 'noResults')));
+                          return Center(
+                            child: Text(
+                              t(lang, 'noResults'),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16, color: Colors.black54),
+                            ),
+                          );
                         } else {
                           final schedules = snapshot.data!;
                           return ListView.builder(
