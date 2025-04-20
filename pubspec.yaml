@@ -1,5 +1,5 @@
-name: cercanias_schedule
-description: A simple app to show Cercanias train schedules from San Vicente Centre to Alicante.
+name: cercaalicante
+description: A modern, friendly app for Cercanías trains in Alicante.
 version: 1.0.0+1
 environment:
   sdk: ">=3.0.0 <4.0.0"
