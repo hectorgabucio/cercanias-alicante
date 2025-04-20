@@ -484,7 +484,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   },
                 ),
                 Text(t(lang, 'showPast')),
-                const SizedBox(height: 4),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.5,
                   child: FutureBuilder<List<TrainSchedule>>(
