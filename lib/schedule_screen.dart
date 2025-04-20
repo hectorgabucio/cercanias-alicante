@@ -189,15 +189,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       final List<dynamic> horarios = data['horario'] ?? [];
       final List<TrainSchedule> allTrains = horarios.map((h) => TrainSchedule.fromJson(h)).toList();
       if (!showPastTrains) {
-        final nowTime = DateFormat('HH:mm').format(DateTime.now());
-        // Only show trains with departureTime >= nowTime
-        return allTrains.where((t) {
-          try {
-            return t.departureTime.compareTo(nowTime) >= 0;
-          } catch (_) {
-            return true;
-          }
-        }).toList();
+        final now = DateTime.now();
+        final selectedDate = DateTime.parse(selectedDay);
+        if (selectedDate.year == now.year && selectedDate.month == now.month && selectedDate.day == now.day) {
+          final nowTime = DateFormat('HH:mm').format(now);
+          return allTrains.where((t) {
+            try {
+              return t.departureTime.compareTo(nowTime) >= 0;
+            } catch (_) {
+              return true;
+            }
+          }).toList();
+        } else {
+          // Not today: show all trains
+          return allTrains;
+        }
       } else {
         return allTrains;
       }
