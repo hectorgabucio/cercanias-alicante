@@ -262,7 +262,7 @@ class _MyBonoPageState extends State<MyBonoPage> {
                       width: 220,
                       repeat: false,
                       package: null,
-                      delegates: LottieDelegates(
+                      delegates: const LottieDelegates(
                         values: [
                           // fallback for .lottie files (dotLottie) if needed
                         ],

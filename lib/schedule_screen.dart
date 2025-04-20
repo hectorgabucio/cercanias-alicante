@@ -211,8 +211,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             children: [
               const CircleAvatar(
                 backgroundColor: Color(0xFFF6F8FC),
-                child: Icon(Icons.train, color: Color(0xFF8D7CF6), size: 18),
                 radius: 15,
+                child: Icon(Icons.train, color: Color(0xFF8D7CF6), size: 18),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -359,7 +359,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget buildDatePicker(BuildContext context) {
     final today = DateTime.now();
     final selected = DateTime.parse(selectedDay);
-    final accent = const Color(0xFF4EC7B3); // Use your accent color
+    const accent = Color(0xFF4EC7B3); // Use your accent color
     final List<DateTime> days = List.generate(7, (i) => today.add(Duration(days: i)));
 
     return SizedBox(
