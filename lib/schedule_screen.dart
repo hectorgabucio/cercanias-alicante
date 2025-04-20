@@ -368,16 +368,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               children: [
                                 const Icon(Icons.location_on, size: 20, color: Color(0xFF8D7CF6)),
                                 const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      stations[selectedOrigin] ?? '',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        stations[selectedOrigin] ?? '',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -438,16 +443,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               children: [
                                 const Icon(Icons.location_on, size: 20, color: Color(0xFF4EC7B3)),
                                 const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      stations[selectedDestination] ?? '',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        stations[selectedDestination] ?? '',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
