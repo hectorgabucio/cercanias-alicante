@@ -34,17 +34,15 @@ class _MyBonoPageState extends State<MyBonoPage> {
     final code = match.group(1)!;
     final dateStr = match.group(2)!;
     final hash = match.group(3)!;
-    DateTime? validUntil;
+    DateTime? generatedAt;
     try {
-      validUntil = DateTime.parse(dateStr);
+      generatedAt = DateTime.parse(dateStr);
     } catch (_) {
       return null;
     }
-    return {
-      'code': code,
-      'validUntil': validUntil,
-      'hash': hash,
-    };
+    final parsed = {'code': code, 'generatedAt': generatedAt, 'hash': hash};
+    print('[parseBonoQR] Parsed QR: code=$code, generatedAt=$generatedAt, hash=$hash');
+    return parsed;
   }
 
   @override
@@ -194,28 +192,69 @@ class _MyBonoPageState extends State<MyBonoPage> {
                   child: loading
                       ? const CircularProgressIndicator()
                       : qrData != null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(height: 32),
-                                QrImageView(
-                                  data: qrData!,
-                                  version: QrVersions.auto,
-                                  size: 240.0,
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton.icon(
-                                  icon: const Icon(Icons.delete_outline),
-                                  label: const Text('Delete QR'),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade100, foregroundColor: Colors.red.shade700),
-                                  onPressed: () async {
-                                    final prefs = await SharedPreferences.getInstance();
-                                    await prefs.remove('my_bono_qr');
-                                    setState(() { qrData = null; });
-                                  },
-                                ),
-                              ],
+                          ? Builder(
+                              builder: (context) {
+                                final parsed = parseBonoQR(qrData);
+                                if (parsed == null) {
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(height: 32),
+                                      QrImageView(
+                                        data: qrData!,
+                                        version: QrVersions.auto,
+                                        size: 240.0,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text('This is not a valid bono', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 24),
+                                      ElevatedButton.icon(
+                                        icon: const Icon(Icons.delete_outline),
+                                        label: const Text('Delete QR'),
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent.shade100, foregroundColor: Colors.red.shade700),
+                                        onPressed: () async {
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.remove('my_bono_qr');
+                                          setState(() { qrData = null; });
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  final code = parsed['code'] as String;
+                                  final generatedAt = parsed['generatedAt'] as DateTime;
+                                  return Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const SizedBox(height: 32),
+                                      QrImageView(
+                                        data: qrData!,
+                                        version: QrVersions.auto,
+                                        size: 240.0,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text('Code: $code', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      const SizedBox(height: 8),
+                                      Text('Generated at: '
+                                        '${generatedAt.toLocal()}'.split('.')[0],
+                                        style: const TextStyle(fontSize: 16, color: Colors.blueGrey, fontWeight: FontWeight.w500)),
+                                      const SizedBox(height: 24),
+                                      ElevatedButton.icon(
+                                        icon: const Icon(Icons.delete_outline),
+                                        label: const Text('Delete QR'),
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent.shade100, foregroundColor: Colors.red.shade700),
+                                        onPressed: () async {
+                                          final prefs = await SharedPreferences.getInstance();
+                                          await prefs.remove('my_bono_qr');
+                                          setState(() { qrData = null; });
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
                             )
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -243,36 +282,6 @@ class _MyBonoPageState extends State<MyBonoPage> {
                                   style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
                                   textAlign: TextAlign.center,
                                 ),
-                                Builder(
-                                  builder: (context) {
-                                    final parsed = parseBonoQR(qrData);
-                                    if (qrData == null) {
-                                      return const SizedBox();
-                                    } else if (parsed == null) {
-                                      return const Text(
-                                        'This is not a valid bono',
-                                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                                        textAlign: TextAlign.center,
-                                      );
-                                    } else {
-                                      final code = parsed['code'] as String;
-                                      final validUntil = parsed['validUntil'] as DateTime;
-                                      final now = DateTime.now();
-                                      final expired = now.isAfter(validUntil);
-                                      return Column(
-                                        children: [
-                                          Text('Code: $code', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                          const SizedBox(height: 8),
-                                          Text('Valid until: '
-                                            '${validUntil.toLocal()}'.split('.')[0],
-                                            style: TextStyle(fontSize: 16, color: expired ? Colors.red : Colors.green, fontWeight: FontWeight.w500)),
-                                          if (expired)
-                                            const Text('Expired', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                                        ],
-                                      );
-                                    }
-                                  },
-                                ),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.qr_code_scanner),
@@ -289,27 +298,27 @@ class _MyBonoPageState extends State<MyBonoPage> {
                                 ),
                               ],
                             ),
+                  ),
                 ),
-              ),
-        if (showSuccess)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.4),
-              child: Center(
-                child: Lottie.asset(
-                  'assets/qr_success.json',
-                  width: 220,
-                  repeat: false,
-                  package: null,
-                  delegates: LottieDelegates(
-                    values: [
-                      // fallback for .lottie files (dotLottie) if needed
-                    ],
+            if (showSuccess)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.4),
+                  child: Center(
+                    child: Lottie.asset(
+                      'assets/qr_success.json',
+                      width: 220,
+                      repeat: false,
+                      package: null,
+                      delegates: LottieDelegates(
+                        values: [
+                          // fallback for .lottie files (dotLottie) if needed
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
       ],
     );
   }
