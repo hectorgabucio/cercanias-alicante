@@ -277,6 +277,161 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
+  Widget buildScheduleCard(TrainSchedule train, ThemeData theme, String lang) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Operator & Train Code
+          Row(
+            children: [
+              const CircleAvatar(
+                backgroundColor: Color(0xFFF6F8FC),
+                child: Icon(Icons.train, color: Color(0xFF8D7CF6)),
+                radius: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  train.line.isNotEmpty ? train.line : t(lang, 'train'),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              // Train code as a subtle tag
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9F0FB),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  train.trainCode,
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF8D7CF6), fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          // Middle Row: Stations, times, dashed route, duration
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Departure
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    train.departureTime,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    t(lang, 'origin'),
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              // Route with dashed line and train icon
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Custom dashed line
+                          return CustomPaint(
+                            size: Size(constraints.maxWidth, 2),
+                            painter: _DashedLinePainter(),
+                          );
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Icon(Icons.train, size: 22, color: Color(0xFF8D7CF6)),
+                    ),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return CustomPaint(
+                            size: Size(constraints.maxWidth, 2),
+                            painter: _DashedLinePainter(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Arrival
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    train.arrivalTime,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    t(lang, 'destination'),
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Duration centered below route
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8D7CF6).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                train.duration,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF8D7CF6)),
+              ),
+            ),
+          ),
+          // Chips row (optional, e.g. accessibility)
+          if (train.accessible)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  Chip(
+                    label: Text(t(lang, 'accessible')),
+                    avatar: const Icon(Icons.accessible, size: 16),
+                    backgroundColor: Colors.green.shade50,
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -523,57 +678,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             separatorBuilder: (context, index) => const Divider(),
                             itemBuilder: (context, index) {
                               final train = schedules[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const Icon(Icons.train),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '${t(lang, 'origin')}: ${train.departureTime}  →  ${t(lang, 'destination')}: ${train.arrivalTime}',
-                                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                                    overflow: TextOverflow.ellipsis,
-                                                  ),
-
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Wrap(
-                                          spacing: 6,
-                                          runSpacing: 4,
-                                          children: [
-                                            Chip(
-                                              label: Text('${t(lang, 'duration')}: ${train.duration}'),
-                                              backgroundColor: Colors.blue.shade50,
-                                            ),
-                                            Chip(
-                                              label: Text('${t(lang, 'train')}: ${train.trainCode}'),
-                                              backgroundColor: Colors.green.shade50,
-                                            ),
-                                            if (train.accessible)
-                                              Chip(label: Text(t(lang, 'accessible')), avatar: const Icon(Icons.accessible, size: 16)),
-                                            // Add more chips as needed for other train properties
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
+                              return buildScheduleCard(train, theme, lang);
                             },
                           );
                         }
@@ -620,4 +725,24 @@ class _StationPickerDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFB2B6C8)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+    const dashWidth = 6.0;
+    const dashSpace = 4.0;
+    double startX = 0;
+    while (startX < size.width) {
+      canvas.drawLine(Offset(startX, size.height / 2), Offset(startX + dashWidth, size.height / 2), paint);
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
