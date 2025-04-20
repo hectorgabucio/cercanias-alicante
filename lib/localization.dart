@@ -24,6 +24,8 @@ const Map<String, Map<String, String>> translations = {
     'departure': 'Salida',
     'arrival': 'Llegada',
     'search': 'Buscar',
+    'from': 'Desde',
+    'to': 'Hasta',
   },
   'en': {
     'appTitle': 'Cercanías Alicante Murcia',
@@ -50,6 +52,8 @@ const Map<String, Map<String, String>> translations = {
     'departure': 'Departure',
     'arrival': 'Arrival',
     'search': 'Search',
+    'from': 'From',
+    'to': 'To',
   }
 };
 

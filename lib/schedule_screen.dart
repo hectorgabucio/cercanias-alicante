@@ -486,7 +486,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   builder: (context) => _StationPickerDialog(
                                     stations: stations,
                                     selected: selectedOrigin,
-                                    title: 'From',
+                                    title: t(lang, 'from'),
                                   ),
                                 );
                                 if (result != null) {
@@ -514,7 +514,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('From', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                          Text(t(lang, 'from'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                                           const SizedBox(height: 1),
                                           Text(
                                             stations[selectedOrigin] ?? '',
@@ -541,7 +541,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   builder: (context) => _StationPickerDialog(
                                     stations: stations,
                                     selected: selectedDestination,
-                                    title: 'To',
+                                    title: t(lang, 'to'),
                                   ),
                                 );
                                 if (result != null) {
@@ -569,7 +569,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text('To', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                          Text(t(lang, 'to'), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                                           const SizedBox(height: 1),
                                           Text(
                                             stations[selectedDestination] ?? '',
