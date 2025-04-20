@@ -447,6 +447,78 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
+  Widget buildDatePicker(BuildContext context) {
+    final today = DateTime.now();
+    final selected = DateTime.parse(selectedDay);
+    final theme = Theme.of(context);
+    final accent = const Color(0xFF4EC7B3); // Use your accent color
+    final List<DateTime> days = List.generate(7, (i) => today.add(Duration(days: i)));
+
+    return SizedBox(
+      height: 64, // Smaller height
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: days.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 14), // Slightly reduced spacing
+        itemBuilder: (context, i) {
+          final d = days[i];
+          final isSelected = d.year == selected.year && d.month == selected.month && d.day == selected.day;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedDay = DateFormat('yyyy-MM-dd').format(d);
+                futureSchedule = fetchSchedule();
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 48, // Smaller width
+              height: 64, // Smaller height
+              decoration: BoxDecoration(
+                color: isSelected ? accent : Colors.white,
+                borderRadius: BorderRadius.circular(16), // Slightly less rounded
+                boxShadow: [
+                  if (isSelected)
+                    BoxShadow(
+                      color: accent.withOpacity(0.14),
+                      blurRadius: 7,
+                      offset: const Offset(0, 2),
+                    ),
+                ],
+                border: Border.all(
+                  color: isSelected ? accent : Colors.grey.shade200,
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('E', lang).format(d),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13, // Smaller font
+                      color: isSelected ? Colors.white : Colors.grey[700],
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    d.day.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17, // Smaller font
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -655,34 +727,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  // ... (rest of your widgets, e.g. date chips, results list)
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(7, (index) {
-                        final date = DateTime.now().add(Duration(days: index));
-                        final formatted = '${date.day} ${DateFormat('MMMM', lang).format(date)}';
-                        final isSelected = selectedDay == DateFormat('yyyy-MM-dd').format(date);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: ChoiceChip(
-                            label: Text(formatted),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              if (selected && !isSelected) {
-                                setState(() {
-                                  selectedDay = DateFormat('yyyy-MM-dd').format(date);
-                                  futureSchedule = fetchSchedule();
-                                });
-                              }
-                            },
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                  buildDatePicker(context),
+                  const SizedBox(height: 12),
                   Switch(
                     value: showPastTrains,
                     onChanged: (value) {
