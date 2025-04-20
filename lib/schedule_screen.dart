@@ -7,6 +7,11 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
+import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:flutter/rendering.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -101,6 +106,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "62002": "🎭", // Orihuela Miguel Hernández
     // Add more as desired, fallback handled below
   };
+
+  final GlobalKey _shareKey = GlobalKey();
 
   @override
   void initState() {
@@ -572,7 +579,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             backgroundColor: Colors.white,
                             child: IconButton(
                               icon: const Icon(Icons.share, color: Colors.black87),
-                              onPressed: () {}, // TODO: Implement share
+                              onPressed: () async {
+                                try {
+                                  RenderRepaintBoundary boundary = _shareKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+                                  ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+                                  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                                  if (byteData != null) {
+                                    Uint8List pngBytes = byteData.buffer.asUint8List();
+                                    final tempDir = await getTemporaryDirectory();
+                                    final file = await File('${tempDir.path}/schedule_share.png').create();
+                                    await file.writeAsBytes(pngBytes);
+                                    await Share.shareXFiles([XFile(file.path)], text: 'Train schedule from ${stations[selectedOrigin]} to ${stations[selectedDestination]}');
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Error sharing screenshot: ' + e.toString())),
+                                  );
+                                }
+                              },
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -759,41 +783,44 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.5,
-                    child: FutureBuilder<List<TrainSchedule>>(
-                      future: futureSchedule,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return ListView.builder(
-                            itemCount: 3,
-                            itemBuilder: (context, index) => buildScheduleSkeleton(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              t(lang, 'noResults'),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16, color: Colors.black54),
-                            ),
-                          );
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(
-                            child: Text(
-                              t(lang, 'noResults'),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 16, color: Colors.black54),
-                            ),
-                          );
-                        } else {
-                          final schedules = snapshot.data!;
-                          return ListView.builder(
-                            itemCount: schedules.length,
-                            itemBuilder: (context, index) {
-                              final train = schedules[index];
-                              return buildScheduleCard(train, theme, lang);
-                            },
-                          );
-                        }
-                      },
+                    child: RepaintBoundary(
+                      key: _shareKey,
+                      child: FutureBuilder<List<TrainSchedule>>(
+                        future: futureSchedule,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return ListView.builder(
+                              itemCount: 3,
+                              itemBuilder: (context, index) => buildScheduleSkeleton(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                t(lang, 'noResults'),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                              ),
+                            );
+                          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(
+                              child: Text(
+                                t(lang, 'noResults'),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                              ),
+                            );
+                          } else {
+                            final schedules = snapshot.data!;
+                            return ListView.builder(
+                              itemCount: schedules.length,
+                              itemBuilder: (context, index) {
+                                final train = schedules[index];
+                                return buildScheduleCard(train, theme, lang);
+                              },
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],
