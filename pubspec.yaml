@@ -11,7 +11,7 @@ dependencies:
   shared_preferences: ^2.2.2
   share_plus: ^7.2.1
   qr_flutter: ^4.1.0
-  mobile_scanner: ^3.5.2
+  mobile_scanner: ^6.0.8
   image_picker: ^1.0.7
   zxing2: ^0.2.1
   image: ^4.1.3

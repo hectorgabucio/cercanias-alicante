@@ -5,8 +5,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:zxing2/qrcode.dart';
-import 'package:image/image.dart' as img;
 import 'package:lottie/lottie.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -100,56 +98,13 @@ class _MyBonoPageState extends State<MyBonoPage> {
       setState(() { loading = true; error = null; });
       try {
         print('[MyBono] Picked image: ${picked.path}');
-        final file = File(picked.path);
-        final bytes = await file.readAsBytes();
-        print('[MyBono] Image bytes length: ${bytes.length}');
-        final decodedImage = img.decodeImage(bytes);
-        if (decodedImage != null) {
-          final imageData = decodedImage.data;
-          if (imageData == null) {
-            setState(() { error = 'Could not decode image data.'; loading = false; });
-            print('[MyBono] Error: imageData is null');
-            return;
-          }
-          final rgbBytes = imageData.buffer.asUint8List();
-          final int pixelCount = decodedImage.width * decodedImage.height;
-          Int32List rgbaPixels;
-          if (imageData.buffer.asInt32List().length == pixelCount) {
-            // Already RGBA/ARGB
-            rgbaPixels = imageData.buffer.asInt32List();
-          } else if (rgbBytes.length == pixelCount * 3) {
-            // Convert from RGB to RGBA (alpha=0xFF)
-            rgbaPixels = Int32List(pixelCount);
-            for (int i = 0, j = 0; i < pixelCount; i++, j += 3) {
-              final r = rgbBytes[j];
-              final g = rgbBytes[j + 1];
-              final b = rgbBytes[j + 2];
-              rgbaPixels[i] = (0xFF << 24) | (r << 16) | (g << 8) | b;
-            }
-          } else {
-            setState(() { error = 'Unsupported image format for QR scan.'; loading = false; });
-            print('[MyBono] Unsupported image format: rgbBytes.length=${rgbBytes.length}, pixelCount=${pixelCount}');
-            return;
-          }
-          print('[MyBono] Final pixel buffer length: ${rgbaPixels.length} (should be width*height=${pixelCount})');
-          final luminanceSource = RGBLuminanceSource(
-            decodedImage.width,
-            decodedImage.height,
-            rgbaPixels,
-          );
-          final bitmap = BinaryBitmap(HybridBinarizer(luminanceSource));
-          final reader = QRCodeReader();
-          final result = reader.decode(bitmap);
-          print('[MyBono] QR decode result: ${result.text}');
-          if (result.text.isNotEmpty) {
-            await _saveQR(result.text);
-          } else {
-            setState(() { error = 'No QR code found in image.'; });
-            print('[MyBono] No QR code found in image.');
-          }
+        final controller = MobileScannerController();
+        final BarcodeCapture? capture = await controller.analyzeImage(picked.path);
+        if (capture != null && capture.barcodes.isNotEmpty && capture.barcodes.first.rawValue != null) {
+          await _saveQR(capture.barcodes.first.rawValue!);
         } else {
-          setState(() { error = 'Could not decode image.'; });
-          print('[MyBono] Could not decode image bytes to image.');
+          setState(() { error = 'No QR code found in image.'; });
+          print('[MyBono] No QR code found in image.');
         }
       } catch (e, stack) {
         setState(() { error = 'Error scanning image: ${e.toString()}'; });

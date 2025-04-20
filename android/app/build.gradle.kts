@@ -36,6 +36,10 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    // Ensure compatibility with mobile_scanner 6.x
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 flutter {
