@@ -3,8 +3,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -275,25 +273,6 @@ class _MyBonoPageState extends State<MyBonoPage> {
                 ),
               ),
       ],
-    );
-  }
-}
-
-class _QRScannerPage extends StatelessWidget {
-  const _QRScannerPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Scan QR'), backgroundColor: Colors.white, elevation: 1, iconTheme: const IconThemeData(color: Colors.black)),
-      body: MobileScanner(
-        onDetect: (capture) {
-          final barcodes = capture.barcodes;
-          if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
-            Navigator.of(context).pop(barcodes.first.rawValue);
-          }
-        },
-      ),
     );
   }
 }

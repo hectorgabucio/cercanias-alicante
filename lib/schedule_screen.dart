@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
-import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/rendering.dart';
@@ -222,80 +221,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  Future<void> _pickStation({
-    required bool isOrigin,
-    required BuildContext context,
-  }) async {
-    final exclude = isOrigin ? selectedDestination : selectedOrigin;
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        String query = '';
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            final filtered = stations.entries
-                .where((entry) =>
-                    entry.key != exclude &&
-                    (entry.value.toLowerCase().contains(query.toLowerCase()) ||
-                        entry.key.contains(query)))
-                .toList();
-            return Padding(
-              padding: MediaQuery.of(context).viewInsets,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextField(
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: t(lang, 'searchStation'),
-                        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                        prefixIcon: const Icon(Icons.search),
-                      ),
-                      onChanged: (value) => setSheetState(() => query = value),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final entry = filtered[index];
-                        return ListTile(
-                          leading: Icon(stationIcons[entry.key] ?? Icons.train),
-                          title: Text(entry.value),
-                          onTap: () => Navigator.pop(context, entry.key),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-    if (selected != null) {
-      setState(() {
-        if (isOrigin) {
-          selectedOrigin = selected;
-        } else {
-          selectedDestination = selected;
-        }
-        futureSchedule = fetchSchedule();
-      });
-    }
-  }
-
-  Widget buildScheduleCard(TrainSchedule train, ThemeData theme, String lang) {
+  Widget buildScheduleCard(TrainSchedule train, String lang) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(12),
@@ -325,7 +251,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Expanded(
                 child: Text(
                   train.line.isNotEmpty ? train.line : t(lang, 'train'),
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                     fontSize: 15,
@@ -466,7 +392,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   Widget buildDatePicker(BuildContext context) {
     final today = DateTime.now();
     final selected = DateTime.parse(selectedDay);
-    final theme = Theme.of(context);
     final accent = const Color(0xFF4EC7B3); // Use your accent color
     final List<DateTime> days = List.generate(7, (i) => today.add(Duration(days: i)));
 
@@ -537,7 +462,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Screenshot(
       controller: _screenshotController,
       child: Scaffold(
@@ -570,7 +494,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             const SizedBox(width: 10),
                             Text(
                               stations[selectedDestination] ?? '',
-                              style: theme.textTheme.titleLarge?.copyWith(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                                 fontSize: 18, // Decreased font size
@@ -816,7 +740,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 itemCount: schedules.length,
                                 itemBuilder: (context, index) {
                                   final train = schedules[index];
-                                  return buildScheduleCard(train, theme, lang);
+                                  return buildScheduleCard(train, lang);
                                 },
                               );
                             }

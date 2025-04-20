@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'localization.dart';
+// import 'localization.dart';
 import 'schedule_screen.dart';
 
 void main() async {
