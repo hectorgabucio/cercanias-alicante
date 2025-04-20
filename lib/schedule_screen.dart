@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
 import 'my_bono_page.dart';
+import 'stations.dart'; // Import stations.dart
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -30,37 +31,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   bool showPastTrains = false;
   late TextEditingController _originController;
   late TextEditingController _destinationController;
-
-  static const Map<String, String> stations = {
-    "07004": "Aguilas",
-    "07007": "Aguilas el Labradorcico",
-    "60911": "Alacant Terminal",
-    "06008": "Alcantarilla-Los Romanos",
-    "06002": "Alhama de Murcia",
-    "06100": "Almendricos",
-    "62001": "Beniel",
-    "62003": "Callosa de Segura",
-    "62101": "Crevillent",
-    "62108": "Elche-Mercancias",
-    "62102": "Elx Carrùs",
-    "62103": "Elx Parc",
-    "07003": "Jaravia",
-    "06004": "La Hoya",
-    "06001": "Librilla",
-    "06005": "Lorca San Diego",
-    "06006": "Lorca-Sutullena",
-    "61200": "Murcia del Carmen",
-    "61101": "Murcia Mercancias",
-    "62002": "Orihuela Miguel Hernández",
-    "06007": "Puerto Lumbreras",
-    "07001": "Pulpi",
-    "62100": "San Isidro-Albatera-Catral",
-    "62109": "Sant Gabriel",
-    "60913": "Sant Vicent Centre",
-    "62104": "Torrellano",
-    "06003": "Totana",
-    "60914": "Universidad de Alicante",
-  };
 
   static const Map<String, String> stationEmojis = {
     "60913": "🎓", // Sant Vicent Centre (university/hat)

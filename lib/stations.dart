@@ -1,0 +1,30 @@
+/// Common stations map for Cercanias Alicante/Murcia
+/// Use this everywhere you need the stations list.
+const Map<String, String> stations = {
+  "07004": "Aguilas",
+  "07007": "Aguilas el Labradorcico",
+  "07009": "Almendricos",
+  "06013": "Altet",
+  "06014": "Aspe",
+  "06015": "Beniel",
+  "06016": "Callosa de Segura",
+  "06017": "Carrús",
+  "06018": "Catral",
+  "06019": "Crevillente",
+  "06020": "Elche Parque/Elx Parc",
+  "06021": "Elche Carrús/Elx Carrús",
+  "06022": "Elda-Petrer",
+  "06023": "La Encina",
+  "06024": "Monforte del Cid",
+  "06025": "Murcia del Carmen",
+  "06026": "Orihuela-Miguel Hernández",
+  "06027": "San Isidro-Albatera-Catral",
+  "06028": "San Vicente Centre/Sant Vicent Centre",
+  "06029": "Torre-Pacheco",
+  "06030": "Torrevieja",
+  "06031": "Totana",
+  "06032": "Villena",
+  "60911": "Alacant Terminal",
+  "60913": "Sant Vicent Centre",
+  // ...add all other stations as needed
+};
