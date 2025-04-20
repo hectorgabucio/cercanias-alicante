@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'localization.dart';
 import 'schedule_screen.dart';
@@ -15,7 +16,7 @@ class CercaniasScheduleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: t('es', 'appTitle'),
+      title: 'CercaAlicante',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
