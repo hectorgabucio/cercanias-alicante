@@ -195,14 +195,27 @@ class _MyBonoPageState extends State<MyBonoPage> {
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                if (error != null) ...[
-                                  Text(error!, style: const TextStyle(color: Colors.red)),
-                                  const SizedBox(height: 16),
-                                ],
+                                // Skeleton for empty QR
+                                Container(
+                                  width: 180,
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Icon(Icons.qr_code_2, size: 90, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 24),
+                                const Text(
+                                  'No bono QR added yet',
+                                  style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 24),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.qr_code_scanner),
                                   label: const Text('Scan QR'),
-                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4EC7B3)),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF4EC7B3)),
                                   onPressed: _scanQR,
                                 ),
                                 const SizedBox(height: 16),
