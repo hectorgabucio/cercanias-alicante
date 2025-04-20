@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter/rendering.dart';
+import 'my_bono_page.dart';
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -596,6 +597,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     SnackBar(content: Text('Error sharing screenshot: ' + e.toString())),
                                   );
                                 }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: IconButton(
+                              icon: const Icon(Icons.qr_code, color: Color(0xFF4EC7B3)),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const MyBonoPage()),
+                                );
                               },
                             ),
                           ),
