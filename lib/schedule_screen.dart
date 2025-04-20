@@ -90,6 +90,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "06003": Icons.train,
   };
 
+  static const Map<String, String> stationEmojis = {
+    "60913": "🎓", // Sant Vicent Centre (university/hat)
+    "60911": "🏖️", // Alacant Terminal (beach)
+    "61200": "🌴", // Murcia del Carmen (palm tree)
+    "62103": "🏞️", // Elx Parc (park)
+    "62104": "✈️", // Torrellano (airport)
+    "62001": "🌾", // Beniel
+    "06006": "🏰", // Lorca-Sutullena
+    "62002": "🎭", // Orihuela Miguel Hernández
+    // Add more as desired, fallback handled below
+  };
+
   @override
   void initState() {
     super.initState();
@@ -437,17 +449,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Top Row with Back and Actions
+                  // Top Row with Destination Station
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Back button
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                          onPressed: () => Navigator.of(context).maybePop(),
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            stationEmojis[selectedDestination] ?? "🚆",
+                            style: const TextStyle(fontSize: 28),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            stations[selectedDestination] ?? '',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ],
                       ),
                       Row(
                         children: [
