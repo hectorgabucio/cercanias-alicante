@@ -286,16 +286,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         backgroundColor: Colors.white,
         elevation: 2,
         titleSpacing: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: 'Open navigation menu',
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.person, color: Colors.black87),
+          onPressed: openSettings,
+          tooltip: 'Profile / Settings',
         ),
-        title: Text(
-          t(lang, 'appTitle'),
-          style: const TextStyle(
+        title: const Text(
+          'Hello!',
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
             color: Colors.black87,
@@ -305,12 +303,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         actions: const [],
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      drawer: ScheduleDrawer(
-        lang: lang,
-        defaultOrigin: defaultOrigin,
-        defaultDestination: defaultDestination,
-        onSettings: openSettings,
-      ),
+      drawer: null,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -564,101 +557,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class ScheduleDrawer extends StatelessWidget {
-  final String lang;
-  final String defaultOrigin;
-  final String defaultDestination;
-  final VoidCallback onSettings;
-
-  const ScheduleDrawer({
-    super.key,
-    required this.lang,
-    required this.defaultOrigin,
-    required this.defaultDestination,
-    required this.onSettings,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFF5B86E5),
-            ),
-            child: Center(
-              child: Text(
-                t(lang, 'settings'),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: Text(t(lang, 'settings')),
-            onTap: onSettings,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// --- WIDGETS ---
-
-class TrainScheduleListItem extends StatelessWidget {
-  final TrainSchedule train;
-  final String lang;
-
-  const TrainScheduleListItem({super.key, required this.train, required this.lang});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return ListTile(
-      leading: const Icon(Icons.train),
-      // Fix: Wrap the Row in a SingleChildScrollView to avoid overflow
-      title: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            Text(
-              '${t(lang, 'origin')}: ${train.departureTime}',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              '${t(lang, 'destination')}: ${train.arrivalTime}',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 8),
-            Chip(
-              label: Text('${t(lang, 'duration')}: ${train.duration}'),
-              backgroundColor: Colors.blue.shade50,
-            ),
-            const SizedBox(width: 8),
-            Chip(
-              label: Text('${t(lang, 'train')}: ${train.trainCode}'),
-              backgroundColor: Colors.green.shade50,
-            ),
-          ],
-        ),
-      ),
-      subtitle: train.accessible
-          ? Row(children: [Icon(Icons.accessible, color: Colors.green), SizedBox(width: 4), Text(t(lang, 'accessible'))])
-          : null,
     );
   }
 }
