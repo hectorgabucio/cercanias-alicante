@@ -470,72 +470,132 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
-
-                  const SizedBox(height: 8),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   // Station pickers styled as pills with swap
-                  Row(
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      // From
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final result = await showDialog<MapEntry<String, String>>(
-                              context: context,
-                              builder: (context) => _StationPickerDialog(
-                                stations: stations,
-                                selected: selectedOrigin,
-                                title: 'From',
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                selectedOrigin = result.key;
-                                futureSchedule = fetchSchedule();
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE3E7F1),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.location_on, size: 20, color: Color(0xFF8D7CF6)),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('From', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        stations[selectedOrigin] ?? '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                      ),
-                                    ],
+                      Row(
+                        children: [
+                          // From
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await showDialog<MapEntry<String, String>>(
+                                  context: context,
+                                  builder: (context) => _StationPickerDialog(
+                                    stations: stations,
+                                    selected: selectedOrigin,
+                                    title: 'From',
                                   ),
+                                );
+                                if (result != null) {
+                                  setState(() {
+                                    selectedOrigin = result.key;
+                                    futureSchedule = fetchSchedule();
+                                  });
+                                }
+                              },
+                              child: Container(
+                                constraints: const BoxConstraints(minHeight: 44),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE3E7F1),
+                                  borderRadius: BorderRadius.circular(32),
                                 ),
-                              ],
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.location_on, size: 18, color: Color(0xFF8D7CF6)),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      fit: FlexFit.loose,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('From', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                          const SizedBox(height: 1),
+                                          Text(
+                                            stations[selectedOrigin] ?? '',
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            softWrap: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          // To
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await showDialog<MapEntry<String, String>>(
+                                  context: context,
+                                  builder: (context) => _StationPickerDialog(
+                                    stations: stations,
+                                    selected: selectedDestination,
+                                    title: 'To',
+                                  ),
+                                );
+                                if (result != null) {
+                                  setState(() {
+                                    selectedDestination = result.key;
+                                    futureSchedule = fetchSchedule();
+                                  });
+                                }
+                              },
+                              child: Container(
+                                constraints: const BoxConstraints(minHeight: 44),
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD3F4EF),
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.location_on, size: 18, color: Color(0xFF4EC7B3)),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      fit: FlexFit.loose,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('To', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                                          const SizedBox(height: 1),
+                                          Text(
+                                            stations[selectedDestination] ?? '',
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            softWrap: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      // Swap button
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      // Floating swap button
+                      Positioned(
+                        left: null,
+                        right: null,
                         child: Material(
                           color: const Color(0xFF8D7CF6),
                           shape: const CircleBorder(),
-                          elevation: 2,
+                          elevation: 3,
                           child: InkWell(
                             customBorder: const CircleBorder(),
                             onTap: () {
@@ -548,58 +608,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(10),
-                              child: Icon(Icons.swap_horiz, color: Colors.white, size: 28),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // To
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final result = await showDialog<MapEntry<String, String>>(
-                              context: context,
-                              builder: (context) => _StationPickerDialog(
-                                stations: stations,
-                                selected: selectedDestination,
-                                title: 'To',
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                selectedDestination = result.key;
-                                futureSchedule = fetchSchedule();
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD3F4EF),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.location_on, size: 20, color: Color(0xFF4EC7B3)),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('To', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        stations[selectedDestination] ?? '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              child: Icon(Icons.swap_horiz, color: Colors.white, size: 22),
                             ),
                           ),
                         ),
