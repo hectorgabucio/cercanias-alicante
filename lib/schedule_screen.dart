@@ -497,7 +497,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 }
                               },
                               child: Container(
-                                constraints: const BoxConstraints(minHeight: 44),
+                                height: 72,
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFE3E7F1),
@@ -552,7 +552,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 }
                               },
                               child: Container(
-                                constraints: const BoxConstraints(minHeight: 44),
+                                height: 72,
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFD3F4EF),
