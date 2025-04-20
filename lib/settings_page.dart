@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'stations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   final String lang;
@@ -180,6 +181,40 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // --- Custom Footer ---
+                  const Divider(height: 40, thickness: 1, color: Color(0xFFE0E0E0)),
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Made with ❤️ by Héctor Gabucio',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () async {
+                            final url = Uri.parse('https://github.com/hectorgabucio/cercanias-alicante');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url, mode: LaunchMode.externalApplication);
+                            }
+                          },
+                          child: Text(
+                            'Open source project, found at github.com/hectorgabucio/cercanias-alicante',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF4EC7B3),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
