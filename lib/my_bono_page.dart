@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:zxing2/qrcode.dart';
 import 'package:image/image.dart' as img;
+import 'package:lottie/lottie.dart';
 
 class MyBonoPage extends StatefulWidget {
   const MyBonoPage({super.key});
@@ -19,6 +20,9 @@ class _MyBonoPageState extends State<MyBonoPage> {
   String? qrData;
   bool loading = false;
   String? error;
+  bool showSuccess = false;
+  bool _cameraMode = false;
+  MobileScannerController? _scannerController;
 
   @override
   void initState() {
@@ -38,16 +42,31 @@ class _MyBonoPageState extends State<MyBonoPage> {
     await prefs.setString('my_bono_qr', data);
     setState(() {
       qrData = data;
+      showSuccess = true;
+    });
+    await Future.delayed(const Duration(seconds: 3));
+    setState(() {
+      showSuccess = false;
     });
   }
 
   void _scanQR() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const _QRScannerPage()),
-    );
-    if (result != null && result is String) {
-      await _saveQR(result);
+    setState(() {
+      _cameraMode = true;
+      error = null;
+    });
+    _scannerController = MobileScannerController();
+  }
+
+  void _onCameraDetect(BarcodeCapture capture) async {
+    final barcodes = capture.barcodes;
+    if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+      final qr = barcodes.first.rawValue!;
+      await _saveQR(qr);
+      setState(() {
+        _cameraMode = false;
+      });
+      _scannerController?.stop();
     }
   }
 
@@ -120,63 +139,103 @@ class _MyBonoPageState extends State<MyBonoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My bono'),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: Center(
-        child: loading
-            ? const CircularProgressIndicator()
-            : qrData != null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      QrImageView(
-                        data: qrData!,
-                        version: QrVersions.auto,
-                        size: 240.0,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(qrData!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: Colors.black54)),
-                      const SizedBox(height: 24),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.delete_outline),
-                        label: const Text('Delete QR'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade100, foregroundColor: Colors.red.shade700),
-                        onPressed: () async {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.remove('my_bono_qr');
-                          setState(() { qrData = null; });
-                        },
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (error != null) ...[
-                        Text(error!, style: const TextStyle(color: Colors.red)),
-                        const SizedBox(height: 16),
-                      ],
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.qr_code_scanner),
-                        label: const Text('Scan QR'),
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4EC7B3)),
-                        onPressed: _scanQR,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.image),
-                        label: const Text('Upload Image'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade100, foregroundColor: Colors.blue.shade700),
-                        onPressed: _pickImageAndScan,
-                      ),
+    return Stack(
+      children: [
+        _cameraMode
+            ? Scaffold(
+                appBar: AppBar(
+                  title: const Text('Scan QR'),
+                  backgroundColor: Colors.white,
+                  elevation: 1,
+                  iconTheme: const IconThemeData(color: Colors.black),
+                  leading: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _cameraMode = false;
+                        _scannerController?.stop();
+                      });
+                    },
+                  ),
+                ),
+                body: MobileScanner(
+                  controller: _scannerController,
+                  onDetect: _onCameraDetect,
+                ),
+              )
+            : Scaffold(
+                appBar: AppBar(title: const Text('My bono'), backgroundColor: Colors.white, elevation: 1, iconTheme: const IconThemeData(color: Colors.black)),
+                body: Center(
+                  child: loading
+                      ? const CircularProgressIndicator()
+                      : qrData != null
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                QrImageView(
+                                  data: qrData!,
+                                  version: QrVersions.auto,
+                                  size: 240.0,
+                                ),
+                                const SizedBox(height: 24),
+                                Text(qrData!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: Colors.black54)),
+                                const SizedBox(height: 24),
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('Delete QR'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade100, foregroundColor: Colors.red.shade700),
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.remove('my_bono_qr');
+                                    setState(() { qrData = null; });
+                                  },
+                                ),
+                              ],
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (error != null) ...[
+                                  Text(error!, style: const TextStyle(color: Colors.red)),
+                                  const SizedBox(height: 16),
+                                ],
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.qr_code_scanner),
+                                  label: const Text('Scan QR'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4EC7B3)),
+                                  onPressed: _scanQR,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  icon: const Icon(Icons.image),
+                                  label: const Text('Upload Image'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade100, foregroundColor: Colors.blue.shade700),
+                                  onPressed: _pickImageAndScan,
+                                ),
+                              ],
+                            ),
+                ),
+              ),
+        if (showSuccess)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.4),
+              child: Center(
+                child: Lottie.asset(
+                  'assets/qr_success.json',
+                  width: 220,
+                  repeat: false,
+                  package: null,
+                  delegates: LottieDelegates(
+                    values: [
+                      // fallback for .lottie files (dotLottie) if needed
                     ],
                   ),
-      ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
