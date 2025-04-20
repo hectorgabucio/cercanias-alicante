@@ -37,7 +37,7 @@ class _MyBonoPageState extends State<MyBonoPage> {
       return null;
     }
     final parsed = {'code': code, 'generatedAt': generatedAt, 'hash': hash};
-    print('[parseBonoQR] Parsed QR: code=$code, generatedAt=$generatedAt, hash=$hash');
+    // print('[parseBonoQR] Parsed QR: code=$code, generatedAt=$generatedAt, hash=$hash');
     return parsed;
   }
 
@@ -56,7 +56,7 @@ class _MyBonoPageState extends State<MyBonoPage> {
 
   Future<void> _saveQR(String data) async {
     // Log the content of the scanned QR
-    print('[MyBono] Scanned QR content: $data');
+    // print('[MyBono] Scanned QR content: $data');
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('my_bono_qr', data);
     setState(() {
@@ -95,19 +95,19 @@ class _MyBonoPageState extends State<MyBonoPage> {
     if (picked != null) {
       setState(() { loading = true; error = null; });
       try {
-        print('[MyBono] Picked image: ${picked.path}');
+        // print('[MyBono] Picked image: ${picked.path}');
         final controller = MobileScannerController();
         final BarcodeCapture? capture = await controller.analyzeImage(picked.path);
         if (capture != null && capture.barcodes.isNotEmpty && capture.barcodes.first.rawValue != null) {
           await _saveQR(capture.barcodes.first.rawValue!);
         } else {
           setState(() { error = 'No QR code found in image.'; });
-          print('[MyBono] No QR code found in image.');
+          // print('[MyBono] No QR code found in image.');
         }
       } catch (e, stack) {
         setState(() { error = 'Error scanning image: ${e.toString()}'; });
-        print('[MyBono] Error scanning image: ${e.toString()}');
-        print(stack);
+        // print('[MyBono] Error scanning image: ${e.toString()}');
+        // print(stack);
       }
       setState(() { loading = false; });
     }
@@ -232,14 +232,14 @@ class _MyBonoPageState extends State<MyBonoPage> {
                                 const SizedBox(height: 16),
                                 const Text(
                                   'No bono QR added yet',
-                                  style: TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
+                                  style: const TextStyle(fontSize: 18, color: Colors.black38, fontWeight: FontWeight.w500),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
                                   icon: const Icon(Icons.qr_code_scanner),
                                   label: const Text('Scan QR'),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF4EC7B3)),
+                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4EC7B3)),
                                   onPressed: _scanQR,
                                 ),
                                 const SizedBox(height: 16),
@@ -256,7 +256,7 @@ class _MyBonoPageState extends State<MyBonoPage> {
             if (showSuccess)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withAlpha(102),
                   child: Center(
                     child: Lottie.asset(
                       'assets/qr_success.json',

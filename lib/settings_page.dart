@@ -102,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12.withOpacity(0.04),
+                          color: Colors.black.withOpacity(0.04),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -143,7 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12.withOpacity(0.04),
+                          color: Colors.black.withOpacity(0.04),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -181,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12.withOpacity(0.04),
+                          color: Colors.black.withOpacity(0.04),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),

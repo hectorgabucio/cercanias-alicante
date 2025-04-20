@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart';
 import 'my_bono_page.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -64,38 +64,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "60914": "Universidad de Alicante",
   };
 
-  static const Map<String, dynamic> stationIcons = {
-    "60911": Icons.beach_access,
-    "60913": Icons.school,
-    "61200": Icons.location_city,
-    "62103": Icons.park,
-    "62102": Icons.nature,
-    "62002": Icons.church,
-    "62101": Icons.grass,
-    "62100": Icons.landscape,
-    "60914": Icons.account_balance,
-    // Generic
-    "07004": Icons.train,
-    "07007": Icons.train,
-    "06008": Icons.train,
-    "06002": Icons.train,
-    "06100": Icons.train,
-    "62001": Icons.train,
-    "62003": Icons.train,
-    "62108": Icons.train,
-    "07003": Icons.train,
-    "06004": Icons.train,
-    "06001": Icons.train,
-    "06005": Icons.train,
-    "06006": Icons.train,
-    "61101": Icons.train,
-    "06007": Icons.train,
-    "07001": Icons.train,
-    "62109": Icons.train,
-    "62104": Icons.train,
-    "06003": Icons.train,
-  };
-
   static const Map<String, String> stationEmojis = {
     "60913": "🎓", // Sant Vicent Centre (university/hat)
     "60911": "🏖️", // Alacant Terminal (beach)
@@ -116,7 +84,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     super.initState();
     _originController = TextEditingController(text: stations[selectedOrigin] ?? '');
     _destinationController = TextEditingController(text: stations[selectedDestination] ?? '');
-    final systemLang = ui.window.locale.languageCode;
+    // final systemLang = PlatformDispatcher.instance.views.first.window.locale.languageCode;
+    final systemLang = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
     lang = systemLang;
     selectedOrigin = defaultOrigin;
     selectedDestination = defaultDestination;
@@ -230,7 +199,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(30),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -280,7 +249,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF8D7CF6).withOpacity(0.08),
+                      color: const Color(0xFF8D7CF6).withAlpha(20),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -421,7 +390,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 boxShadow: [
                   if (isSelected)
                     BoxShadow(
-                      color: accent.withOpacity(0.14),
+                      color: accent.withAlpha(30),
                       blurRadius: 7,
                       offset: const Offset(0, 2),
                     ),
