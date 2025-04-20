@@ -8,9 +8,21 @@ A simple Flutter app to show the train schedule for Cercanías (Renfe) from San 
 </p>
 
 ## Features
-- Fetches schedule from the official Renfe API
-- Displays departure, arrival, duration, and train number
-- Clean, modern Material design
+- Fetches schedules from the official Renfe API (no API key required)
+- Select origin and destination stations from a searchable list
+- Swap origin and destination with a single tap
+- Pick travel date (today/tomorrow/next 7 days)
+- Shows departure, arrival, duration, and train number
+- Indicates accessible trains
+- Filter to show/hide past trains for today
+- Language selection: Spanish and English
+- Save preferred language and default stations (persistent settings)
+- Modern Material 3 design and smooth gradients
+- Share your schedule as a screenshot (with image export)
+- Skeleton loading screens for better UX
+- QR support for "Bono" (scan and store QR, pick from camera/gallery, delete)
+- Responsive UI for phones and tablets
+- No ads, no tracking, open source
 
 ## Getting Started
 1. Ensure you have Flutter installed: https://docs.flutter.dev/get-started/install
