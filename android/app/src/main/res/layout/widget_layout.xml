@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center">
 
         <ImageView
             android:id="@+id/widget_logo"
@@ -28,6 +28,18 @@
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_swap_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="↔"
+            android:textSize="24sp"
+            android:textColor="#4EC7B3"
+            android:padding="8dp"
+            android:background="?android:attr/selectableItemBackground" />
+
     </LinearLayout>
 
     <TextView

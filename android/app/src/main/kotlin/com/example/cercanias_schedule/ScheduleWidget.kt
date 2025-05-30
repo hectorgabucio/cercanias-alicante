@@ -34,11 +34,28 @@ class ScheduleWidget : AppWidgetProvider() {
         // Enter relevant functionality for when the last widget is disabled
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (Companion.SWAP_ACTION == intent.action) {
+            // Handle swap action
+            val prefs = context.getSharedPreferences(Companion.PREFS_NAME, Context.MODE_PRIVATE)
+            val origin = prefs.getString(Companion.ORIGIN_KEY, "") ?: ""
+            val destination = prefs.getString(Companion.DESTINATION_KEY, "") ?: ""
+
+            // Swap and save back to shared preferences
+            Companion.updateData(context, destination, origin, prefs.getString(Companion.SCHEDULES_KEY, "[]") ?: "[]")
+
+            // Update all widgets to reflect the change
+            Companion.updateAllWidgets(context)
+        }
+    }
+
     companion object {
         private const val PREFS_NAME = "WidgetData"
         private const val SCHEDULES_KEY = "schedules"
         private const val ORIGIN_KEY = "origin"
         private const val DESTINATION_KEY = "destination"
+        const val SWAP_ACTION = "com.example.cercanias_schedule.ACTION_SWAP_STATIONS"
 
         fun updateAppWidget(
             context: Context,
@@ -63,6 +80,17 @@ class ScheduleWidget : AppWidgetProvider() {
             serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))
             views.setRemoteAdapter(R.id.widget_schedule_list, serviceIntent)
+
+            // Set up the intent for the swap button
+            val swapIntent = Intent(context, ScheduleWidget::class.java)
+            swapIntent.action = SWAP_ACTION
+            val swapPendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                swapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_swap_button, swapPendingIntent)
 
             // Update route information from shared preferences
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
