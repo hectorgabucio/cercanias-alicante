@@ -5,17 +5,26 @@ import 'package:intl/date_symbol_data_local.dart';
 // import 'localization.dart';
 import 'schedule_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting();
+  
+  // Set preferred orientations
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  
+  // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // or your preferred color
-      statusBarIconBrightness: Brightness.dark, // dark icons for light bg
-      statusBarBrightness: Brightness.light, // iOS: dark icons for light bg
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
     ),
   );
-  runApp(const CercaniasScheduleApp());
+  
+  // Initialize date formatting
+  initializeDateFormatting().then((_) => runApp(const CercaniasScheduleApp()));
 }
 
 class CercaniasScheduleApp extends StatelessWidget {
@@ -25,6 +34,7 @@ class CercaniasScheduleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CercaAlicante',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
