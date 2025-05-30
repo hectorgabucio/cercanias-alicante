@@ -96,15 +96,11 @@ class ScheduleWidget : AppWidgetProvider() {
         }
 
         fun updateData(context: Context, origin: String, destination: String, schedulesJson: String) {
-            Log.d("ScheduleWidget", "updateData: Received origin = $origin")
-            Log.d("ScheduleWidget", "updateData: Received destination = $destination")
-            Log.d("ScheduleWidget", "updateData: Received schedulesJson = $schedulesJson")
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
             prefs.putString(ORIGIN_KEY, origin)
             prefs.putString(DESTINATION_KEY, destination)
             prefs.putString(SCHEDULES_KEY, schedulesJson)
             prefs.apply()
-            Log.d("ScheduleWidget", "updateData: Data saved to shared preferences")
         }
     }
 } 

@@ -6,7 +6,6 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import org.json.JSONArray
 import org.json.JSONObject
-import android.util.Log
 
 class ScheduleWidgetService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
@@ -26,12 +25,9 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
         // Fetching data from shared preferences or intent extras here
         val prefs = context.getSharedPreferences("WidgetData", Context.MODE_PRIVATE)
         val schedulesJsonString = prefs.getString("schedules", "[]") ?: "[]"
-        Log.d("ScheduleWidget", "onDataSetChanged: schedulesJsonString = $schedulesJsonString")
         try {
             schedules = JSONArray(schedulesJsonString)
-            Log.d("ScheduleWidget", "onDataSetChanged: schedules count = ${schedules.length()}")
         } catch (e: Exception) {
-            Log.e("ScheduleWidget", "Error parsing schedules JSON", e)
             schedules = JSONArray() // Clear schedules on error
         }
     }
@@ -48,13 +44,11 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
         val views = RemoteViews(context.packageName, R.layout.widget_schedule_item)
         try {
             val schedule = schedules.getJSONObject(position)
-            Log.d("ScheduleWidget", "getViewAt: position $position, schedule = $schedule")
             views.setTextViewText(R.id.schedule_departure_time, schedule.getString("departureTime"))
             views.setTextViewText(R.id.schedule_arrival_time, schedule.getString("arrivalTime"))
             views.setTextViewText(R.id.schedule_train_code, "Train: ${schedule.getString("trainCode")}")
         } catch (e: Exception) {
             // Handle error
-            Log.e("ScheduleWidget", "Error getting view at position $position", e)
             views.setTextViewText(R.id.schedule_departure_time, "Error")
             views.setTextViewText(R.id.schedule_arrival_time, "")
             views.setTextViewText(R.id.schedule_train_code, "")
