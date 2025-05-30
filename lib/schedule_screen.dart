@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
 import 'stations.dart'; // Import stations.dart
+import 'widget_service.dart'; // Import widget_service.dart
 
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
@@ -133,6 +134,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       final data = jsonDecode(response.body);
       final List<dynamic> horarios = data['horario'] ?? [];
       final List<TrainSchedule> allTrains = horarios.map((h) => TrainSchedule.fromJson(h)).toList();
+
+      // Update the widget with the new schedules
+      WidgetService.updateWidget(
+        origin: stations[selectedOrigin] ?? selectedOrigin,
+        destination: stations[selectedDestination] ?? selectedDestination,
+        schedules: allTrains.map((train) => train.toJson()).toList(),
+      );
+
       if (!showPastTrains) {
         final now = DateTime.now();
         final selectedDate = DateTime.parse(selectedDay);

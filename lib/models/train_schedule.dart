@@ -25,4 +25,15 @@ class TrainSchedule {
       accessible: json['accesible'] ?? false,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'line': line,
+      'trainCode': trainCode,
+      'departureTime': departureTime,
+      'arrivalTime': arrivalTime,
+      'duration': duration,
+      'accessible': accessible,
+    };
+  }
 }
