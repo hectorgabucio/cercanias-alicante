@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,8 +15,8 @@
 
         <ImageView
             android:id="@+id/widget_logo"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@mipmap/ic_launcher"
             android:contentDescription="App Logo" />
 
@@ -25,8 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="CercaAlicante"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textColor="#000000"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textColor="#FFFFFF"
+        android:textColor="#333333"
         android:textSize="14sp"
         android:maxLines="1"
         android:ellipsize="end" />
@@ -47,7 +47,7 @@
         android:layout_weight="1"
         android:layout_marginTop="8dp"
         android:divider="@android:color/transparent"
-        android:dividerHeight="4dp"
+        android:dividerHeight="8dp"
         android:background="@android:color/transparent" />
 
     <TextView
@@ -55,7 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textColor="#CCFFFFFF"
+        android:textColor="#555555"
         android:textSize="12sp"
         android:gravity="end" />
 
