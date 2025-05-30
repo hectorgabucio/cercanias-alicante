@@ -10,7 +10,6 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
-import 'my_bono_page.dart';
 import 'stations.dart'; // Import stations.dart
 
 class ScheduleScreen extends StatefulWidget {
@@ -446,19 +445,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: IconButton(
                                 icon: const Icon(Icons.share, color: Colors.black87),
                                 onPressed: _shareScreenshot,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            CircleAvatar(
-                              backgroundColor: Colors.white,
-                              child: IconButton(
-                                icon: const Icon(Icons.qr_code, color: Color(0xFF4EC7B3)),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const MyBonoPage()),
-                                  );
-                                },
                               ),
                             ),
                             const SizedBox(width: 12),

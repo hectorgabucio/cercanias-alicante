@@ -20,7 +20,6 @@ A simple Flutter app to show the train schedule for Cercanías (Renfe) from San 
 - Modern Material 3 design and smooth gradients
 - Share your schedule as a screenshot (with image export)
 - Skeleton loading screens for better UX
-- QR support for "Bono" (scan and store QR, pick from camera/gallery, delete)
 - Responsive UI for phones and tablets
 - No ads, no tracking, open source
 
