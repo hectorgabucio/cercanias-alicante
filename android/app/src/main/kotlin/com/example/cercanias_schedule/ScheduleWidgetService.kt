@@ -6,6 +6,8 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ScheduleWidgetService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
@@ -15,6 +17,7 @@ class ScheduleWidgetService : RemoteViewsService() {
 
 class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) : RemoteViewsService.RemoteViewsFactory {
     private var schedules: JSONArray = JSONArray()
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     override fun onCreate() {
         // Connect to data source here if needed
@@ -26,7 +29,24 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
         val prefs = context.getSharedPreferences(ScheduleWidget.PREFS_NAME, Context.MODE_PRIVATE)
         val schedulesJsonString = prefs.getString(ScheduleWidget.SCHEDULES_KEY, "[]") ?: "[]"
         try {
-            schedules = JSONArray(schedulesJsonString)
+            val allSchedules = JSONArray(schedulesJsonString)
+            val filteredSchedules = JSONArray()
+            
+            // Get current time and subtract 5 minutes to get the cutoff time
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.MINUTE, -5)
+            val cutoffTime = timeFormat.format(calendar.time)
+            
+            // Filter schedules - keep all schedules that are 5 minutes in the past or newer
+            for (i in 0 until allSchedules.length()) {
+                val schedule = allSchedules.getJSONObject(i)
+                val departureTime = schedule.getString("horaSalida")
+                if (departureTime.compareTo(cutoffTime) >= 0) {
+                    filteredSchedules.put(schedule)
+                }
+            }
+            
+            schedules = filteredSchedules
         } catch (e: Exception) {
             schedules = JSONArray() // Clear schedules on error
         }
