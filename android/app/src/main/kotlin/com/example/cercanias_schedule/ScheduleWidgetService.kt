@@ -23,8 +23,8 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
     override fun onDataSetChanged() {
         // This is called when the app calls AppWidgetManager.notifyAppWidgetViewDataChanged()
         // Fetching data from shared preferences or intent extras here
-        val prefs = context.getSharedPreferences("WidgetData", Context.MODE_PRIVATE)
-        val schedulesJsonString = prefs.getString("schedules", "[]") ?: "[]"
+        val prefs = context.getSharedPreferences(ScheduleWidget.PREFS_NAME, Context.MODE_PRIVATE)
+        val schedulesJsonString = prefs.getString(ScheduleWidget.SCHEDULES_KEY, "[]") ?: "[]"
         try {
             schedules = JSONArray(schedulesJsonString)
         } catch (e: Exception) {
@@ -44,9 +44,9 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
         val views = RemoteViews(context.packageName, R.layout.widget_schedule_item)
         try {
             val schedule = schedules.getJSONObject(position)
-            views.setTextViewText(R.id.schedule_departure_time, schedule.getString("departureTime"))
-            views.setTextViewText(R.id.schedule_arrival_time, schedule.getString("arrivalTime"))
-            views.setTextViewText(R.id.schedule_train_code, "Train: ${schedule.getString("trainCode")}")
+            views.setTextViewText(R.id.schedule_departure_time, schedule.getString("horaSalida"))
+            views.setTextViewText(R.id.schedule_arrival_time, schedule.getString("horaLlegada"))
+            views.setTextViewText(R.id.schedule_train_code, "Train: ${schedule.getString("cdgoTren")}")
         } catch (e: Exception) {
             // Handle error
             views.setTextViewText(R.id.schedule_departure_time, "Error")

@@ -52,6 +52,10 @@ class ScheduleWidget : AppWidgetProvider() {
                 // Swap and save back to shared preferences
                 updateData(context, destination, origin, prefs.getString(SCHEDULES_KEY, "[]") ?: "[]")
 
+                // Start the update service to fetch new schedule
+                val serviceIntent = Intent(context, ScheduleUpdateService::class.java)
+                context.startService(serviceIntent)
+
                 // Update all widgets to reflect the change
                 updateAllWidgets(context)
             }
