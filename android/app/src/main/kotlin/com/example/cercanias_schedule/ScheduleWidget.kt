@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -163,10 +164,7 @@ class ScheduleWidget : AppWidgetProvider() {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val origin = prefs.getString(ORIGIN_KEY, "") ?: ""
             val destination = prefs.getString(DESTINATION_KEY, "") ?: ""
-            views.setTextViewText(
-                R.id.widget_route,
-                "$origin → $destination"
-            )
+            views.setTextViewText(R.id.widget_route, "$origin → $destination")
 
             // Update the last update time
             val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())

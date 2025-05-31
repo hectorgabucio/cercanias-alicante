@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/widget_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,6 +14,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
+        <!-- App Logo -->
         <ImageView
             android:id="@+id/widget_logo"
             android:layout_width="28dp"
@@ -20,55 +22,47 @@
             android:src="@mipmap/ic_launcher"
             android:contentDescription="App Logo" />
 
+        <!-- Widget Title / Route -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/widget_route"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="CercaAlicante"
             android:textColor="#000000"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
-        <Button
+        <!-- Swap Button -->
+        <ImageButton
             android:id="@+id/widget_swap_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="↔"
-            android:textSize="20sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#4EC7B3"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
-            android:padding="8dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp" />
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_swap_stations"
+            android:background="@drawable/widget_swap_button_background"
+            android:contentDescription="Swap Stations"
+            android:padding="4dp"
+             app:tint="#FFFFFF" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_route"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textColor="#333333"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:gravity="center" />
-
+    <!-- Schedule List -->
     <ListView
         android:id="@+id/widget_schedule_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="8dp"
-        android:background="@android:color/transparent" />
+        android:background="@android:color/transparent"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
 
-    <TextView
+    <!-- Last Update Time -->
+     <TextView
         android:id="@+id/widget_last_update"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
