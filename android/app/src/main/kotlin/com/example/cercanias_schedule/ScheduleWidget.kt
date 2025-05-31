@@ -14,6 +14,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import android.net.Uri
 import android.util.Log
+import android.app.AlarmManager
+import android.os.Build
 
 class ScheduleWidget : AppWidgetProvider() {
     override fun onUpdate(
@@ -27,35 +29,96 @@ class ScheduleWidget : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
+        super.onEnabled(context)
+        // Set up periodic updates when the first widget is created
+        setupPeriodicUpdates(context)
     }
 
     override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
+        super.onDisabled(context)
+        // Cancel periodic updates when the last widget is disabled
+        cancelPeriodicUpdates(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (Companion.SWAP_ACTION == intent.action) {
-            // Handle swap action
-            val prefs = context.getSharedPreferences(Companion.PREFS_NAME, Context.MODE_PRIVATE)
-            val origin = prefs.getString(Companion.ORIGIN_KEY, "") ?: ""
-            val destination = prefs.getString(Companion.DESTINATION_KEY, "") ?: ""
+        when (intent.action) {
+            SWAP_ACTION -> {
+                // Handle swap action
+                val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val origin = prefs.getString(ORIGIN_KEY, "") ?: ""
+                val destination = prefs.getString(DESTINATION_KEY, "") ?: ""
 
-            // Swap and save back to shared preferences
-            Companion.updateData(context, destination, origin, prefs.getString(Companion.SCHEDULES_KEY, "[]") ?: "[]")
+                // Swap and save back to shared preferences
+                updateData(context, destination, origin, prefs.getString(SCHEDULES_KEY, "[]") ?: "[]")
 
-            // Update all widgets to reflect the change
-            Companion.updateAllWidgets(context)
+                // Update all widgets to reflect the change
+                updateAllWidgets(context)
+            }
+            UPDATE_ACTION -> {
+                // Handle periodic update
+                updateAllWidgets(context)
+            }
         }
     }
 
     companion object {
-        private const val PREFS_NAME = "WidgetData"
-        private const val SCHEDULES_KEY = "schedules"
-        private const val ORIGIN_KEY = "origin"
-        private const val DESTINATION_KEY = "destination"
+        const val PREFS_NAME = "WidgetData"
+        const val SCHEDULES_KEY = "schedules"
+        const val ORIGIN_KEY = "origin"
+        const val DESTINATION_KEY = "destination"
         const val SWAP_ACTION = "com.example.cercanias_schedule.ACTION_SWAP_STATIONS"
+        const val UPDATE_ACTION = "com.example.cercanias_schedule.ACTION_UPDATE_WIDGET"
+        private const val UPDATE_INTERVAL = 15 * 60 * 1000L // 15 minutes
+
+        private fun setupPeriodicUpdates(context: Context) {
+            // Start the update service
+            val serviceIntent = Intent(context, ScheduleUpdateService::class.java)
+            context.startService(serviceIntent)
+
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ScheduleWidget::class.java).apply {
+                action = UPDATE_ACTION
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // Cancel any existing alarms
+            alarmManager.cancel(pendingIntent)
+
+            // Set up the periodic update
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + UPDATE_INTERVAL,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + UPDATE_INTERVAL,
+                    pendingIntent
+                )
+            }
+        }
+
+        private fun cancelPeriodicUpdates(context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ScheduleWidget::class.java).apply {
+                action = UPDATE_ACTION
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            alarmManager.cancel(pendingIntent)
+        }
 
         fun updateAppWidget(
             context: Context,
