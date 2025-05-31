@@ -43,8 +43,9 @@
             android:src="@drawable/ic_swap_stations"
             android:background="@drawable/widget_swap_button_background"
             android:contentDescription="Swap Stations"
-            android:padding="4dp"
-             app:tint="#FFFFFF" />
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            app:tint="#FFFFFF" />
 
     </LinearLayout>
 
