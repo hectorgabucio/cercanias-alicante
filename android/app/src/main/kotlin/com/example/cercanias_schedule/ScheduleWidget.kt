@@ -97,15 +97,17 @@ class ScheduleWidget : AppWidgetProvider() {
 
             // Set up the periodic update
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
+                alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + UPDATE_INTERVAL,
+                    System.currentTimeMillis(),
+                    UPDATE_INTERVAL,
                     pendingIntent
                 )
             } else {
-                alarmManager.setExact(
+                alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + UPDATE_INTERVAL,
+                    System.currentTimeMillis(),
+                    UPDATE_INTERVAL,
                     pendingIntent
                 )
             }

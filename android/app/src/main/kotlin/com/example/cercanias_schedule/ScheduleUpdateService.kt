@@ -3,6 +3,8 @@ package com.example.cercanias_schedule
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,11 +42,16 @@ class ScheduleUpdateService : Service() {
                 updateSchedule()
             } catch (e: Exception) {
                 Log.e("ScheduleUpdateService", "Error updating schedule", e)
+                // Retry after a short delay
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val retryIntent = Intent(this@ScheduleUpdateService, ScheduleUpdateService::class.java)
+                    startService(retryIntent)
+                }, 5000) // Retry after 5 seconds
             } finally {
                 stopSelf(startId)
             }
         }
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private suspend fun updateSchedule() {
