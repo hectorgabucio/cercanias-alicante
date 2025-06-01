@@ -1,11 +1,18 @@
 package com.example.cercanias_schedule
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,6 +24,8 @@ import java.util.*
 
 class ScheduleUpdateService : Service() {
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val NOTIFICATION_ID = 1
+    private val CHANNEL_ID = "ScheduleUpdateChannel"
 
     // Map of station names to codes
     private val stationCodes = mapOf(
@@ -30,13 +39,19 @@ class ScheduleUpdateService : Service() {
         "Orihuela Miguel Hernández" to "62002"
     )
 
-    override fun onBind(intent: Intent?): IBinder? = null
-
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Start as foreground service immediately
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, createNotification("Actualizando horarios..."), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            startForeground(NOTIFICATION_ID, createNotification("Actualizando horarios..."))
+        }
+        
         scope.launch {
             try {
                 updateSchedule()
@@ -48,11 +63,35 @@ class ScheduleUpdateService : Service() {
                     startService(retryIntent)
                 }, 5000) // Retry after 5 seconds
             } finally {
+                stopForeground(true)
                 stopSelf(startId)
             }
         }
         return START_REDELIVER_INTENT
     }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Schedule Updates"
+            val descriptionText = "Notifications for schedule updates"
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(message: String) = NotificationCompat.Builder(this, CHANNEL_ID)
+        .setContentTitle("Cercanías Schedule")
+        .setContentText(message)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setOngoing(true)
+        .build()
+
+    override fun onBind(intent: Intent?): IBinder? = null
 
     private suspend fun updateSchedule() {
         val prefs = getSharedPreferences(ScheduleWidget.PREFS_NAME, MODE_PRIVATE)

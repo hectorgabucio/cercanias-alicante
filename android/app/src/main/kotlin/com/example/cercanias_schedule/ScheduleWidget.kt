@@ -44,21 +44,27 @@ class ScheduleWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         when (intent.action) {
-            SWAP_ACTION -> {
+            SWAP_ACTION, "android.appwidget.action.APPWIDGET_CLICK" -> {
                 // Handle swap action
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val origin = prefs.getString(ORIGIN_KEY, "") ?: ""
                 val destination = prefs.getString(DESTINATION_KEY, "") ?: ""
 
-                // Swap and save back to shared preferences
-                updateData(context, destination, origin, prefs.getString(SCHEDULES_KEY, "[]") ?: "[]")
+                if (origin.isNotEmpty() && destination.isNotEmpty()) {
+                    // Swap and save back to shared preferences
+                    updateData(context, destination, origin, prefs.getString(SCHEDULES_KEY, "[]") ?: "[]")
 
-                // Start the update service to fetch new schedule
-                val serviceIntent = Intent(context, ScheduleUpdateService::class.java)
-                context.startService(serviceIntent)
+                    // Start the update service to fetch new schedule
+                    val serviceIntent = Intent(context, ScheduleUpdateService::class.java)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
 
-                // Update all widgets to reflect the change
-                updateAllWidgets(context)
+                    // Update all widgets to reflect the change
+                    updateAllWidgets(context)
+                }
             }
             UPDATE_ACTION -> {
                 // Handle periodic update
@@ -151,16 +157,40 @@ class ScheduleWidget : AppWidgetProvider() {
             serviceIntent.data = Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME))
             views.setRemoteAdapter(R.id.widget_schedule_list, serviceIntent)
 
-            // Set up the intent for the swap button
-            val swapIntent = Intent(context, ScheduleWidget::class.java)
-            swapIntent.action = SWAP_ACTION
+            // Set up the intent for the swap button with a unique request code
+            val swapIntent = Intent(context, ScheduleWidget::class.java).apply {
+                action = SWAP_ACTION
+                // Add unique data to prevent intent reuse
+                data = Uri.parse("swap://${System.currentTimeMillis()}")
+                // Add widget ID as extra to ensure uniqueness
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                // Add flags to make the intent more persistent
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
             val swapPendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                appWidgetId, // Use widget ID as request code to make it unique
                 swapIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
             )
             views.setOnClickPendingIntent(R.id.widget_swap_button, swapPendingIntent)
+
+            // Also set up a click listener on the entire widget for swap
+            val widgetSwapIntent = Intent(context, ScheduleWidget::class.java).apply {
+                action = "android.appwidget.action.APPWIDGET_CLICK"
+                data = Uri.parse("widget://${appWidgetId}")
+                // Add flags to make the intent more persistent
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+            val widgetSwapPendingIntent = PendingIntent.getBroadcast(
+                context,
+                appWidgetId + 1000, // Different request code
+                widgetSwapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+            )
+            views.setOnClickPendingIntent(R.id.widget_swap_button, widgetSwapPendingIntent)
 
             // Update route information from shared preferences
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
