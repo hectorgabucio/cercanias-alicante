@@ -66,12 +66,10 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
             val schedule = schedules.getJSONObject(position)
             views.setTextViewText(R.id.schedule_departure_time, schedule.getString("horaSalida"))
             views.setTextViewText(R.id.schedule_arrival_time, schedule.getString("horaLlegada"))
-            views.setTextViewText(R.id.schedule_train_code, "Train: ${schedule.getString("cdgoTren")}")
         } catch (e: Exception) {
             // Handle error
             views.setTextViewText(R.id.schedule_departure_time, "Error")
             views.setTextViewText(R.id.schedule_arrival_time, "")
-            views.setTextViewText(R.id.schedule_train_code, "")
         }
         return views
     }
