@@ -28,6 +28,7 @@ class ScheduleWidget : AppWidgetProvider() {
         const val SWAP_ACTION = "com.example.cercanias_schedule.ACTION_SWAP_STATIONS"
         const val UPDATE_ACTION = "com.example.cercanias_schedule.ACTION_UPDATE_WIDGET"
         const val ACTION_ITEM_CLICK = "com.example.cercanias_schedule.ACTION_ITEM_CLICK"
+        const val ACTION_WIDGET_CLICK = "com.example.cercanias_schedule.ACTION_WIDGET_CLICK"
         private const val UPDATE_INTERVAL = 15 * 60 * 1000L // 15 minutes
 
         private fun setupPeriodicUpdates(context: Context) {
@@ -116,6 +117,19 @@ class ScheduleWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setPendingIntentTemplate(R.id.widget_schedule_grid, clickPendingIntent)
+            
+            // Set up click handling for the widget container to open the app
+            val widgetClickIntent = Intent(context, ScheduleWidget::class.java).apply {
+                action = ACTION_WIDGET_CLICK
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            val widgetClickPendingIntent = PendingIntent.getBroadcast(
+                context,
+                appWidgetId,
+                widgetClickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_container, widgetClickPendingIntent)
             
             // Set up the empty view
             views.setEmptyView(R.id.widget_schedule_grid, R.id.widget_empty_view)
@@ -238,6 +252,15 @@ class ScheduleWidget : AppWidgetProvider() {
                     updateAllWidgets(context)
                 } else {
                     Log.w(TAG, "Cannot swap: origin or destination is empty")
+                }
+            }
+            ACTION_WIDGET_CLICK -> {
+                Log.d(TAG, "Handling widget click - opening app")
+                val packageManager = context.packageManager
+                val launchIntent = packageManager.getLaunchIntentForPackage(context.packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(launchIntent)
                 }
             }
             UPDATE_ACTION -> {
