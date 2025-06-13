@@ -147,7 +147,6 @@ class ScheduleWidget : AppWidgetProvider() {
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             val lastUpdate = timeFormat.format(Date())
             Log.d(TAG, "Setting last update time: $lastUpdate")
-            views.setTextViewText(R.id.widget_last_update, "Última actualización: $lastUpdate")
             
             // Update the widget
             Log.d(TAG, "Updating widget $appWidgetId with new views")
