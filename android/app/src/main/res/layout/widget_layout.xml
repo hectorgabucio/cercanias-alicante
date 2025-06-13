@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:padding="4dp"
     android:background="@drawable/widget_background">
 
     <LinearLayout
@@ -20,17 +20,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textColor="#000000"
             android:textStyle="bold" />
 
         <!-- Swap Button -->
         <ImageButton
             android:id="@+id/widget_swap_button"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_swap_stations"
-            android:padding="1dp"
+            android:padding="0dp"
             android:scaleType="centerInside"
             app:tint="#FFFFFF"
             android:background="@drawable/widget_swap_button_background"
@@ -44,11 +44,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:numColumns="3"
-        android:horizontalSpacing="4dp"
-        android:verticalSpacing="4dp"
+        android:horizontalSpacing="2dp"
+        android:verticalSpacing="2dp"
         android:stretchMode="columnWidth"
         android:gravity="center"
- 
         android:listSelector="@android:color/transparent"
         android:divider="@null"
         android:background="@android:color/transparent" />
@@ -60,8 +59,9 @@
         android:layout_height="wrap_content"
         android:text="No schedules available"
         android:textColor="#666666"
+        android:textSize="12sp"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="4dp"
         android:visibility="gone" />
 
 </LinearLayout> 
