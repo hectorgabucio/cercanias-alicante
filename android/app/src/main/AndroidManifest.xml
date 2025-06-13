@@ -59,7 +59,8 @@
 
         <service
             android:name=".ScheduleWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="true" />
 
     </application>
     <!-- Required to query activities that can process text, see:

@@ -41,18 +41,36 @@
 
     </LinearLayout>
 
-    <!-- Schedule List -->
-    <ListView
-        android:id="@+id/widget_schedule_list"
+    <!-- Schedule Grid -->
+    <GridView
+        android:id="@+id/widget_schedule_grid"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
+        android:layout_marginBottom="8dp"
+        android:numColumns="3"
+        android:horizontalSpacing="8dp"
+        android:verticalSpacing="8dp"
+        android:gravity="center"
+        android:stretchMode="columnWidth"
+        android:listSelector="@android:color/transparent"
+        android:divider="@null"
+        android:dividerHeight="0dp"
         android:background="@android:color/transparent"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Empty View -->
+    <TextView
+        android:id="@+id/widget_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="No hay trenes disponibles"
+        android:textColor="#555555"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
     <!-- Last Update Time -->
      <TextView
