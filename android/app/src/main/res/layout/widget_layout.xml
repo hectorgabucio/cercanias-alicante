@@ -30,8 +30,8 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_swap_stations"
-            android:padding="0dp"
-            android:scaleType="centerInside"
+            android:padding="2dp"
+            android:scaleType="fitCenter"
             app:tint="#FFFFFF"
             android:background="@drawable/widget_swap_button_background"
             android:contentDescription="Swap stations" />
