@@ -101,8 +101,8 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
     }
 
     override fun getCount(): Int {
-        Log.d(TAG, "getCount called for widget $widgetId, returning 6 (2x3 grid)")
-        return 6 // We always show 6 items (2 rows of 3)
+        Log.d(TAG, "getCount called for widget $widgetId, returning ${schedules.length()}")
+        return schedules.length()
     }
 
     override fun getViewAt(position: Int): RemoteViews {
