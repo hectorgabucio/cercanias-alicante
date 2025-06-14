@@ -106,21 +106,21 @@ class ScheduleRemoteViewsFactory(private val context: Context, intent: Intent) :
     }
 
     override fun getViewAt(position: Int): RemoteViews {
-        Log.d(TAG, "getViewAt called for widget $widgetId at position: $position (row: ${position / 3}, col: ${position % 3})")
+        Log.d(TAG, "getViewAt called for widget $widgetId at position: $position (row: ${position / 4}, col: ${position % 4})")
         val views = RemoteViews(context.packageName, R.layout.widget_time_item)
         
         try {
             if (position < schedules.length()) {
                 val schedule = schedules.getJSONObject(position)
                 val time = schedule.getString("horaSalida")
-                Log.d(TAG, "Setting time for widget $widgetId at position $position (row: ${position / 3}, col: ${position % 3}): $time")
+                Log.d(TAG, "Setting time for widget $widgetId at position $position (row: ${position / 4}, col: ${position % 4}): $time")
                 views.setTextViewText(R.id.time_text, time)
             } else {
-                Log.d(TAG, "Position $position (row: ${position / 3}, col: ${position % 3}) is empty for widget $widgetId, setting placeholder")
+                Log.d(TAG, "Position $position (row: ${position / 4}, col: ${position % 4}) is empty for widget $widgetId, setting placeholder")
                 views.setTextViewText(R.id.time_text, "-")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error setting view for widget $widgetId at position $position (row: ${position / 3}, col: ${position % 3})", e)
+            Log.e(TAG, "Error setting view for widget $widgetId at position $position (row: ${position / 4}, col: ${position % 4})", e)
             views.setTextViewText(R.id.time_text, "-")
         }
         

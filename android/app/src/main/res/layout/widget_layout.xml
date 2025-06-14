@@ -48,7 +48,7 @@
             android:id="@+id/widget_schedule_grid"
             android:layout_width="match_parent"
             android:layout_height="72dp"
-            android:numColumns="3"
+            android:numColumns="4"
             android:horizontalSpacing="2dp"
             android:verticalSpacing="2dp"
             android:stretchMode="columnWidth"
